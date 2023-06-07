@@ -1,2 +1,6 @@
 # Team-Grumbly-Project01
-I enjoy JavaScript because it utilizes both Functional programming and Object-oriented programming. I then pushed way to main, NEVER DO THIS
+One Bard Band(8 bit remixed) by Alexander Nakarada | https://www.serpentsoundstudios.com
+Music promoted by https://www.chosic.com/free-music/all/
+Creative Commons CC BY 4.0
+https://creativecommons.org/licenses/by/4.0/
+ 

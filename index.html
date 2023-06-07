@@ -1,13 +1,24 @@
-<!doctype html>
-<html lang="en" >
-   <head>
-      <meta charset="UTF-8">
-      <title>Fortune's Barrows</title>
-      <link rel="stylesheet" href="./assets/css/style.css">
-      <script src="//cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.js"></script>
-   </head>
-   <body>
-      <div id="container"></div>
-      <script  src="./assets/js/script.js"></script>
-   </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=MedievalSharp">
+    <link rel="stylesheet" href="./assets/css/reset.css">
+    <link rel="stylesheet" href="./assets/css/root.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <title>Fortune's Barrow</title>
+</head>
+<body>
+    <audio id="menu-music" src="./assets/audio/menu-music.mp3" loop muted></audio>
+    <h1>Fortune's Barrow</h1>
+    <section id="menu-btn-container">
+        <button class="menu-button" id="play">Play</button>
+        <button class="menu-button">High Score</button>
+    </section>
+    <button id="mute">🔇</button>
+    <script  src="./assets/js/menu.js"></script>
+</body>
 </html>
