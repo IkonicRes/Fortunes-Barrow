@@ -1,4 +1,57 @@
 body {
     height: 100%;
     width: 100%;
+    background-color: var(--menu-bkgcolor);
+    color: var(--main-text-color);
+    font-family: 'MedievalSharp';
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+h1 {
+    margin-top: var(--h1-margintop);
+    font-size: var(--h1-textsize);
+    text-align: center;
+    text-shadow: var(--base-textshadow);
+}
+
+#menu-btn-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: space-around;
+    width: var(--menubtns-containerwidth);
+    margin-top: var(--menubtns-container-margintop);
+}
+
+.menu-button {
+    background-color: var(--menubtn-bkgcolor);
+    color: var(--main-text-color);
+    text-shadow: var(--menubtn-textshadow);
+    font-size: var(--menubtn-textsize);
+    border-color: var(--main-text-color);
+    border-radius: var(--menubtn-border-radius);
+    margin-top: var(--menubtn-margintop);
+    height: var(--menubtn-height);
+    
+}
+
+.menu-button:hover {
+    background-color: var(--menubtn-hover-bkgcolor);
+    transform: var(--menubtn-hovertransform);
+}
+
+#mute {
+    font-size: var(--mute-textsize);
+    margin: var(--mutemargin);
+    align-self: start;
+    text-align: center;
+    background-color: var(--mute-bkgcolor);
+    border-radius: var(--mute-border-radius);
+    padding: var(--mutepadding);
+    border-color: var(--main-text-color);
+    position: absolute;
+    bottom: 0;
 }

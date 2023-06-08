@@ -1,0 +1,39 @@
+:root {
+/* COLORS */
+    /* BACKGROUND COLORS */
+    --menu-bkgcolor: black;
+    --menubtn-bkgcolor: rgb(110, 72, 4);
+    --menubtn-hover-bkgcolor: rgb(81, 52, 3);
+    --mute-bkgcolor: rgba(240, 248, 255, 0.137);
+    /* TEXT COLORS */
+    --main-text-color: rgb(255, 0, 0);
+    /* SHADOW COLORS */
+    --h1-shadowcolor: gold;
+    --menubtn-shadowcolor: gold;
+/* TEXT EFFECTS */
+    --base-textshadow: -1px 1px 1px var(--h1-shadowcolor),
+    1px 1px 1px var(--h1-shadowcolor),
+    -1px -1px 1px var(--h1-shadowcolor),
+    1px -1px 1px var(--h1-shadowcolor);
+    --menubtn-textshadow: -1px 1px 1px var(--menubtn-shadowcolor),
+    .1px 1px 1px var(--menubtn-shadowcolor),
+    -1px -1px 1px var(--menubtn-shadowcolor),
+    1px -1px 1px var(--menubtn-shadowcolor);
+/* SIZES  */
+    --h1-textsize: 4vw;
+    --menubtns-containerwidth: 10vw;
+    --menubtn-textsize: 1.7vw;
+    --menubtn-height: 3rem;
+    --mute-textsize: 1.5vw;
+/* SPACING */
+    --h1-margintop: 25vh;
+    --menubtns-container-margintop: 8vh;
+    --menubtn-margintop: 1vw;
+    --mutemargin: .5vw;
+    --mutepadding: .15vw 0 0 .25vw;
+/* BORDERS */
+    --menubtn-border-radius: 25%;
+    --mute-border-radius: 50%;
+/* TRANSFORM */
+    --menubtn-hovertransform: scale(1.1);
+}
