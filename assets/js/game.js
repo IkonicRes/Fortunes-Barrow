@@ -115,3 +115,31 @@ $(document).ready(function() {
       $(location).attr('href', './game.html');
     });
   });
+
+function printData(monsterCurrentData) {
+  console.log(monsterCurrentData.hit_dice)
+  // console.log(monsterCurrentData.hit_points)
+  var monsterObject = {
+      name: monsterCurrentData.name,
+      hp: monsterCurrentData.hit_points,
+      dice: monsterCurrentData.hit_dice
+  }
+  console.log(monsterObject)
+}
+
+fetch('https://www.dnd5eapi.co/api/monsters')
+  .then(response => response.json())
+  .then(data => {
+    // Get a random index from the array of monsters
+    const randomIndex = Math.floor(Math.random() * data.results.length);
+    // monsterCurrentData = fetch('https://www.dnd5eapi.co' + data.results[randomIndex].url)
+    console.log(randomIndex, data.results)
+    // Fetch data for the randomly selected monster
+    fetch('https://www.dnd5eapi.co' + data.results[randomIndex].url)
+  
+     .then(response => response.json())
+     .then(monsterData => printData(monsterData)) 
+})
+//   .then(monsterData => console.log(monsterData))
+.catch(error => console.error('Error:', error));
+  
