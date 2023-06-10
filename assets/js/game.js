@@ -17,8 +17,8 @@ function get_asset_url(assetPath) {
 class startLevelOne extends Phaser.Scene {
   preload() {
     this.load.tilemapTiledJSON('level', get_asset_url('/assets/images/tileset/levels/L_01/L_01.json'));
-    this.load.spritesheet('fantasyDungeonTilesetTransparent', '../assets/images/tileset/dungeonTiles/fantasyDungeonTilesetTransparent.png', { frameWidth: 16, frameHeight: 16 });
-    this.load.spritesheet('character', '../assets/images/characters/T_char.png', { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('fantasyDungeonTilesetTransparent', '/assets/images/tileset/dungeonTiles/fantasyDungeonTilesetTransparent.png', { frameWidth: 16, frameHeight: 16 });
+    this.load.spritesheet('character', '/assets/images/characters/T_char.png', { frameWidth: 32, frameHeight: 32 });
   }
 
   create() {
