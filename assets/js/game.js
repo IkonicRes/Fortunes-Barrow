@@ -543,8 +543,21 @@ function printData(monsterCurrentData) {
   }
   // console.log(monsterObject)
 }
+function printData(spellCurrentData) {
+  console.log(spellCurrentData)
+  // console.log(monsterCurrentData.hit_points)
+  var spellObject = {
+      name: spellCurrentData.name,
+      desc: spellCurrentData.desc,
+      damage: spellCurrentData.damage,
+      range: spellCurrentData.range,
+      duration: spellCurrentData.duration,
+  }
+  console.log(spellObject)
+}
 
-fetch('https://www.dnd5eapi.co/api/monsters')
+function fetchMonsterData(){
+  fetch('https://www.dnd5eapi.co/api/monsters')
   .then(response => response.json())
   .then(data => {
     // Get a random index from the array of monsters
@@ -556,24 +569,16 @@ fetch('https://www.dnd5eapi.co/api/monsters')
   
      .then(response => response.json())
      .then(monsterData => printData(monsterData)) 
+     return data
 })
 //   .then(monsterData => console.log(monsterData))
 .catch(error => console.error('Error:', error));
-  
-function printData(spellCurrentData) {
-  // console.log(spellCurrentData)
-  // console.log(monsterCurrentData.hit_points)
-  var spellObject = {
-      name: spellCurrentData.name,
-      desc: spellCurrentData.desc,
-      damage: spellCurrentData.damage,
-      range: spellCurrentData.range,
-      duration: spellCurrentData.duration,
-  }
-  // console.log(spellObject)
-}
 
-fetch('https://www.dnd5eapi.co/api/spells')
+}
+  
+function fetchSpellData(){
+
+  fetch('https://www.dnd5eapi.co/api/spells')
   .then(response => response.json())
   .then(data => {
     // Get a random index from the array of monsters
@@ -585,9 +590,36 @@ fetch('https://www.dnd5eapi.co/api/spells')
   
      .then(response => response.json())
      .then(spellData => printData(spellData)) 
+     return data
 })
 //   .then(monsterData => console.log(monsterData))
 .catch(error => console.error('Error:', error));
 
+ function fetchWeaponData(){
+  Promise.all([fetch('https://www.dnd5eapi.co/api/equipment/shortbow').then (response => response.json()), fetch('https://www.dnd5eapi.co/api/equipment/longsword').then (response => response.json()),fetch('https://www.dnd5eapi.co/api/equipment/shield').then (response => response.json())])
+  .then(data => {console.log(data)
+                return this.data})
+  }
+// fetchWeaponData()
+// fetchMonsterData()
+// fetchSpellData()
+
+const desiredData = {
+  monsters: [], 
+  weapons: ["shortbow"],
+  spells: []
+}
 
 
+
+function getSortData(){
+  var weaponData = fetchWeaponData()
+  var monsterData = fetchMonsterData()
+  var spellData = fetchSpellData()
+  console.log(weaponData)
+  for (let index = 0; index < weaponData.length; index++) {
+    if (desiredData.weapons.includes (weaponData[index])) 
+    console.log("here")
+  }
+}
+getSortData()
