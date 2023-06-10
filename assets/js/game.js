@@ -20,8 +20,6 @@ class startLevelOne extends Phaser.Scene {
     const rootFolderName = pathname.split('/')[1]
     const tilemapPath = '/assets/images/tileset/dungeonTiles/fantasyDungeonTilesetTransparent.png';
     const charTilemapPath = '/assets/images/characters/T_char.png';
-
-this.load.spritesheet('fantasyDungeonTilesetTransparent', completeImagePath, { frameWidth: 16, frameHeight: 16 });
     this.load.tilemapTiledJSON('level', get_asset_url('/assets/images/tileset/levels/L_01/L_01.json'));
     this.load.spritesheet('fantasyDungeonTilesetTransparent', `${rootFolderName}${tilemapPath}`, { frameWidth: 16, frameHeight: 16 });
     this.load.spritesheet('character', `${rootFolderName}${charTilemapPath}`, { frameWidth: 32, frameHeight: 32 });
