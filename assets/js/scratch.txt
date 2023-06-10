@@ -1,0 +1,93 @@
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~Halle~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+// // Random walk dungeon generation
+// function generateDungeon() {
+//     const width = 80;
+//     const height = 30;
+//     const maxWalkSteps = 1000;
+
+//     // Initialize an empty dungeon filled with walls
+//     const dungeon = Array(height).fill(0).map(() => Array(width).fill(1));
+
+//     let x = Math.floor(Math.random() * width);
+//     let y = Math.floor(Math.random() * height);
+
+//     for(let i = 0; i < maxWalkSteps; i++) {
+//         dungeon[y][x] = 0; // Mark the cell as a floor
+
+//         const direction = Math.floor(Math.random() * 4);
+//         switch(direction) {
+//             case 0: x = Math.max(0, x - 1); break; // left
+//             case 1: x = Math.min(width - 1, x + 1); break; // right
+//             case 2: y = Math.max(0, y - 1); break; // up
+//             case 3: y = Math.min(height - 1, y + 1); break; // down
+//         }
+//     }
+
+//     return dungeon;
+// }
+
+// class Room {
+//   constructor(x, y, width, height) {
+//       this.x = x;
+//       this.y = y;
+//       this.width = width;
+//       this.height = height;
+//   }
+// }
+
+// class BSPDungeon {
+//   constructor(width, height, minRoomSize, maxRoomSize) {
+//       this.width = width;
+//       this.height = height;
+//       this.minRoomSize = minRoomSize;
+//       this.maxRoomSize = maxRoomSize;
+//       this.rooms = [];
+//       this.splitInitialRoom();
+//   }
+
+//   splitInitialRoom() {
+//       const initialRoom = new Room(0, 0, this.width, this.height);
+//       this.splitRoom(initialRoom);
+//   }
+
+//   splitRoom(room) {
+//       if (room.width < this.minRoomSize * 2 && room.height < this.minRoomSize * 2) {
+//           this.rooms.push(room);
+//           return;
+//       }
+
+//       let horizontalSplit;
+
+//       if (room.width > room.height && room.width / room.height >= 1.25) {
+//           horizontalSplit = true;
+//       } else if (room.height > room.width && room.height / room.width >= 1.25) {
+//           horizontalSplit = false;
+//       } else {
+//           horizontalSplit = Math.random() >= 0.5;
+//       }
+
+// if (horizontalSplit) {
+//     this.splitRoom(new Room(room.x, room.y, Math.floor(room.width / 2), room.height));
+//     this.splitRoom(new Room(room.x + Math.floor(room.width / 2), room.y, Math.floor(room.width / 2), room.height));
+// } else {
+//     this.splitRoom(new Room(room.x, room.y, room.width, Math.floor(room.height / 2)));
+//     this.splitRoom(new Room(room.x, room.y + Math.floor(room.height / 2), room.width, Math.floor(room.height / 2)));
+// }
+
+//   }
+
+//   getRooms() {
+//       return this.rooms;
+//   }
+// }
+
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~Mike~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~Rylee~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~Halle~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//

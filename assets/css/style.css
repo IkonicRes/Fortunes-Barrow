@@ -55,3 +55,8 @@ h1 {
     position: absolute;
     bottom: 0;
 }
+
+#game {
+    height: 100%;
+    width: 100%;
+}
