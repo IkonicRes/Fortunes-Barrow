@@ -1,4 +1,4 @@
-
+var repoName = "/Team-Grumbly-Project01"
 const baseDir = window.location.pathname.substring(0, window.location.pathname.lastIndexOf("/"));
 const r1d4 = () => Math.ceil(Math.random() * 4)
 const r1d6 = () => Math.ceil(Math.random() * 6)
@@ -18,8 +18,8 @@ class startLevelOne extends Phaser.Scene {
   preload() {
     const pathname = window.location.pathname
     const rootFolderName = pathname.split('/')[1]
-    const tilemapPath = '/assets/images/tileset/dungeonTiles/fantasyDungeonTilesetTransparent.png';
-    const charTilemapPath = '/assets/images/characters/T_char.png';
+    const tilemapPath = (get_asset_url('/assets/images/tileset/dungeonTiles/fantasyDungeonTilesetTransparent.png'));
+    const charTilemapPath = (get_asset_url('/assets/images/characters/T_char.png'));
     this.load.tilemapTiledJSON('level', get_asset_url('/assets/images/tileset/levels/L_01/L_01.json'));
     this.load.spritesheet('fantasyDungeonTilesetTransparent', tilemapPath, { frameWidth: 16, frameHeight: 16 });
     this.load.spritesheet('character', charTilemapPath, { frameWidth: 32, frameHeight: 32 });
