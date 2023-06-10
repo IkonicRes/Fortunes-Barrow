@@ -592,8 +592,10 @@ function fetchSpellData(){
      .then(spellData => printData(spellData)) 
      return data
 })
+
 //   .then(monsterData => console.log(monsterData))
 .catch(error => console.error('Error:', error));
+}
 
  function fetchWeaponData(){
   Promise.all([fetch('https://www.dnd5eapi.co/api/equipment/shortbow').then (response => response.json()), fetch('https://www.dnd5eapi.co/api/equipment/longsword').then (response => response.json()),fetch('https://www.dnd5eapi.co/api/equipment/shield').then (response => response.json())])
