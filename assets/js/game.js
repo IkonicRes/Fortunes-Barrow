@@ -533,7 +533,7 @@ $(document).ready(function() {
 
 
 /// DND Fetch calls ///
-function printData(monsterCurrentData) {
+function createMonster(monsterCurrentData) {
   // console.log(monsterCurrentData.hit_dice)
   // console.log(monsterCurrentData.hit_points)
   var monsterObject = {
@@ -543,8 +543,7 @@ function printData(monsterCurrentData) {
   }
   // console.log(monsterObject)
 }
-function printData(spellCurrentData) {
-  console.log(spellCurrentData)
+function createSpell(spellCurrentData) {
   // console.log(monsterCurrentData.hit_points)
   var spellObject = {
       name: spellCurrentData.name,
@@ -553,9 +552,12 @@ function printData(spellCurrentData) {
       range: spellCurrentData.range,
       duration: spellCurrentData.duration,
   }
-  console.log(spellObject)
+  return spellObject
 }
 
+var desiredSpells = ["Mage Armor" , "Acid Splash" , ]
+var weaponData = []
+var spellData = []
 function fetchMonsterData(){
   fetch('https://www.dnd5eapi.co/api/monsters')
   .then(response => response.json())
@@ -563,7 +565,6 @@ function fetchMonsterData(){
     // Get a random index from the array of monsters
     const randomIndex = Math.floor(Math.random() * data.results.length);
     // monsterCurrentData = fetch('https://www.dnd5eapi.co' + data.results[randomIndex].url)
-    console.log(randomIndex, data.results)
     // Fetch data for the randomly selected monster
     fetch('https://www.dnd5eapi.co' + data.results[randomIndex].url)
   
@@ -576,52 +577,37 @@ function fetchMonsterData(){
 
 }
   
-function fetchSpellData(){
-
-  fetch('https://www.dnd5eapi.co/api/spells')
-  .then(response => response.json())
-  .then(data => {
-    // Get a random index from the array of monsters
-    const randomIndex = Math.floor(Math.random() * data.results.length);
-    // monsterCurrentData = fetch('https://www.dnd5eapi.co' + data.results[randomIndex].url)
-    // console.log(randomIndex, data.results)
-    // Fetch data for the randomly selected monster
-    fetch('https://www.dnd5eapi.co' + data.results[randomIndex].url)
-  
-     .then(response => response.json())
-     .then(spellData => printData(spellData)) 
-     return data
-})
-
-//   .then(monsterData => console.log(monsterData))
-.catch(error => console.error('Error:', error));
+function fetchWeaponData() {
+  return Promise.all([
+    fetch('https://www.dnd5eapi.co/api/equipment/shortbow').then(response => response.json()),
+    fetch('https://www.dnd5eapi.co/api/equipment/longsword').then(response => response.json()),
+    fetch('https://www.dnd5eapi.co/api/equipment/shield').then(response => response.json())
+  ]).then(data => {
+    weaponData = data;
+    return data;
+  });
 }
-
- function fetchWeaponData(){
-  Promise.all([fetch('https://www.dnd5eapi.co/api/equipment/shortbow').then (response => response.json()), fetch('https://www.dnd5eapi.co/api/equipment/longsword').then (response => response.json()),fetch('https://www.dnd5eapi.co/api/equipment/shield').then (response => response.json())])
-  .then(data => {console.log(data)
-                return this.data})
+function fetchSpellData() {
+  return Promise.all([
+    fetch('https://www.dnd5eapi.co/api/spells/mage-armor').then(response => response.json()),
+    fetch('https://www.dnd5eapi.co/api/spells/acid-splash').then(response => response.json()),
+    fetch('https://www.dnd5eapi.co/api/spells/detect-magic').then(response => response.json()),
+    fetch('https://www.dnd5eapi.co/api/spells/fire-bolt').then(response => response.json()),
+    fetch('https://www.dnd5eapi.co/api/spells/heal').then(response => response.json())
+  ]).then(data => {
+    spellData = data; // Assign the resolved data to the existing spellData variable
+    return data;
+  });
+}
+var spellObjects = []
+function getSortData() {
+  for (let index = 0; index < spellData.length; index++) {
+    spellObjects.push(createSpell(spellData[index]))
   }
-// fetchWeaponData()
-// fetchMonsterData()
-// fetchSpellData()
-
-const desiredData = {
-  monsters: [], 
-  weapons: ["shortbow"],
-  spells: []
+  console.log(spellObjects)
 }
+fetchWeaponData()
+  .then(() => fetchSpellData())
+  .then(() => setTimeout(getSortData, 1000));
 
 
-
-function getSortData(){
-  var weaponData = fetchWeaponData()
-  var monsterData = fetchMonsterData()
-  var spellData = fetchSpellData()
-  console.log(weaponData)
-  for (let index = 0; index < weaponData.length; index++) {
-    if (desiredData.weapons.includes (weaponData[index])) 
-    console.log("here")
-  }
-}
-getSortData()
