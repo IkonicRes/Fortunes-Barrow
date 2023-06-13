@@ -1,0 +1,9 @@
+
+#questionContainer {
+    display: flex;
+    justify-content: center;
+    width: 50%;
+    margin: 0 auto; /* Added to center the container */
+    outline: solid white 1px;
+
+  }
