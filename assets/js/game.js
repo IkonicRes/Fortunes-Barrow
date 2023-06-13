@@ -539,8 +539,9 @@ function createMonster(monsterCurrentData) {
   var monsterObject = {
       name: monsterCurrentData.name,
       hp: monsterCurrentData.hit_points,
-      dice: monsterCurrentData.hit_dice
+      dice: monsterCurrentData.actions[0].damage[0].damage_dice
   }
+  return monsterObject
   // console.log(monsterObject)
 }
 function createSpell(spellCurrentData) {
@@ -555,22 +556,34 @@ function createSpell(spellCurrentData) {
   return spellObject
 }
 
+function createWeapon(weaponCurrentData) {
+  var weaponObject = {
+      name: weaponCurrentData.name,
+      damage: weaponCurrentData.damage,
+      range: weaponCurrentData.weapon_range,
+  }
+  return weaponObject
+}
+
 var desiredSpells = ["Mage Armor" , "Acid Splash" , ]
 var weaponData = []
 var spellData = []
-function fetchMonsterData(){
-  fetch('https://www.dnd5eapi.co/api/monsters')
+
+var desiredMonsters = ["orc" , "skeleton" , "goblin"]
+var monsterData = []
+
+function fetchMonsterData(monsters){
+  return Promise.all([
+  fetch('https://www.dnd5eapi.co/api/monsters/' + monsters[0])
+  .then(response => response.json()),
+  fetch('https://www.dnd5eapi.co/api/monsters/' + monsters[1])
+  .then(response => response.json()),
+  fetch('https://www.dnd5eapi.co/api/monsters/' + monsters[2])
   .then(response => response.json())
-  .then(data => {
-    // Get a random index from the array of monsters
-    const randomIndex = Math.floor(Math.random() * data.results.length);
-    // monsterCurrentData = fetch('https://www.dnd5eapi.co' + data.results[randomIndex].url)
-    // Fetch data for the randomly selected monster
-    fetch('https://www.dnd5eapi.co' + data.results[randomIndex].url)
-  
-     .then(response => response.json())
-     .then(monsterData => printData(monsterData)) 
-     return data
+  ]).then(data => {
+     monsterData = data;
+     console.log(monsterData)
+     return monsterData
 })
 //   .then(monsterData => console.log(monsterData))
 .catch(error => console.error('Error:', error));
@@ -600,14 +613,27 @@ function fetchSpellData() {
   });
 }
 var spellObjects = []
+var weaponObjects = []
+var monsterObjects = []
 function getSortData() {
   for (let index = 0; index < spellData.length; index++) {
     spellObjects.push(createSpell(spellData[index]))
   }
   console.log(spellObjects)
+  for (let index = 0; index < weaponData.length; index++) {
+    weaponObjects.push(createWeapon(weaponData[index]))
+  }
+  console.log(weaponObjects)
+  for (let index = 0; index < monsterData.length; index++) {
+    monsterObjects.push(createMonster(monsterData[index]))
+  }
+  console.log(monsterObjects)
 }
+
 fetchWeaponData()
   .then(() => fetchSpellData())
+  .then(() => fetchMonsterData(desiredMonsters))
   .then(() => setTimeout(getSortData, 1000));
+  
 
 
