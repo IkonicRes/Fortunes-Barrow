@@ -60,3 +60,15 @@ h1 {
     height: 100%;
     width: 100%;
 }
+
+#questionContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 200px; /* Adjust the width as needed */
+    height: 200px; /* Adjust the height as needed */
+    border: 1px solid black;
+    box-sizing: border-box;
+    margin: 30vh auto; /* Adjust the margin-top value as needed */
+    outline: solid white 1px;
+  }
