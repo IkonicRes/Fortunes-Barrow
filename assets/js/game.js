@@ -238,7 +238,7 @@ class startLevelOne extends Phaser.Scene
             this.objectHandler.addObject(enemySprite, tEnemy);
         }
     }
-}
+  } 
 
 
   getCollision(targetDirection){
