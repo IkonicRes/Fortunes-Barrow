@@ -36,7 +36,7 @@ class DoorHandler {
       1411: 1413,
       1412: 1414
     }
-    this.hasKey = true;
+    this.hasKey = false;
   }
 
   getAdjacentDoors(x, y) {
@@ -96,20 +96,27 @@ class startLevelOne extends Phaser.Scene
     gridSize;
     objectHandler;
     doorHandler;
-    preload () {
+    visitedRooms;
+    enemySpawnLocations;
+    enemies;
+    bInput;
+    preload() {
       this.objectHandler = new ObjectHandler()
       this.closedDoors = [1367, 1368, 1415, 1416]
       this.nonCollideIDs = [-1, 1409, 1410, 1361, 1362, 1365, 1366, 1413, 1414]
       this.inputDelay = 500;
-      const tilemapPath = (getAssetUrl('/assets/images/tileset/dungeonTiles/fantasyDungeonTilesetTransparent.png'));
+      const tilemapPath = getAssetUrl('/assets/images/tileset/dungeonTiles/fantasyDungeonTilesetTransparent.png');
       this.load.tilemapTiledJSON('map',  getAssetUrl('/assets/images/tileset/levels/L_01/L_1.json'));
       this.load.spritesheet('fantasyDungeonTilesetTransparent', tilemapPath, { frameWidth: 16, frameHeight: 16 });
-      this.load.spritesheet('player', getAssetUrl('/assets/images/characters/T_char.png'),
-      { frameWidth: 16, frameHeight: 16 }
-      );
+      this.load.spritesheet('player', getAssetUrl('/assets/images/characters/T_char.png'), { frameWidth: 16, frameHeight: 16 });
+      this.load.spritesheet('orc', getAssetUrl('/assets/images/characters/T_orc.png'), { frameWidth: 16, frameHeight: 16 });
+      this.load.spritesheet('goblin', getAssetUrl('/assets/images/characters/T_goblin.png'), { frameWidth: 16, frameHeight: 16 });
+      this.load.spritesheet('skeleton', getAssetUrl('/assets/images/characters/T_skeleton.png'), { frameWidth: 16, frameHeight: 16 });
       this.prevDir = "up"
+      this.enemies = ['orc', 'goblin', 'skeleton']
+      this.enemySpawnLocations = [[[12,3], [16,3], [4,5]], [[20,0], [29,0], [24,0]], [[33,2], [35,2], [34,3]], [[4,11], [4,13], [4,15]], [[12,11], [14,13], [16,15]], [[27,11], [25,13], [24,14]], [[31,13], [34,13], [37,13]], [[2,21], [4,24], [6,22]], [[13,25], [14,22], [16,25]], [[31,24], [37,24], [34,21]], [[12,30], [14,34], [17,30]], [[23,34], [24,34], [25,34]], [[34, 34], [34,35], [34,36]]]
+      this.bInput = true
     }
-    
     create () {
       var scale = 3
       var playerScale = 2
@@ -151,7 +158,11 @@ class startLevelOne extends Phaser.Scene
         this.updateText();
         this.prevGridX = Math.floor(this.objectHandler.getObject("player").x / this.gridSize);
         this.prevGridY = Math.floor(this.objectHandler.getObject("player").y / this.gridSize);
-        
+        this.visitedRooms = ['room_2_2'];
+        this.graphics = this.add.graphics({ lineStyle: { width: 2, color: 0xff0000 }, fillStyle: { color: 0xff0000 }});
+        this.spawnEnemies()
+
+
     }
 
     boxTrigger (inputFunction) { inputFunction } 
@@ -214,20 +225,41 @@ class startLevelOne extends Phaser.Scene
   
     return targetCoords;
   }
-  
-  getCollision(targetDirection) {
+
+  spawnEnemies() {
+    let tEnemy = "";
+    for (let index = 0; index < this.enemySpawnLocations.length; index++) {
+        for (let index1 = 0; index1 < this.enemySpawnLocations[index].length; index1++) {
+            tEnemy = this.enemies[Math.floor(Math.random() * this.enemies.length)];
+            let xPos = this.enemySpawnLocations[index][index1][0] * 48;  // Multiply by the tile size
+            let yPos = this.enemySpawnLocations[index][index1][1] * 52;  // Multiply by the tile size
+            let enemySprite = this.physics.add.sprite(xPos, yPos, tEnemy);
+            enemySprite.setScale(2);
+            this.objectHandler.addObject(enemySprite, tEnemy);
+        }
+    }
+}
+
+
+  getCollision(targetDirection){
     let targetCoords = this.getCollisionCoordinates(targetDirection);
     let index = this.map.layers[1].data[targetCoords[1]][targetCoords[0]].index;
     console.log(index);
     return index;
-  }
-  
+  }           
   update(time, delta) {
+    let gameCursors = this.cursors
+    this.graphics.clear();
+
+    for(let i=0; i<4; i++){
+      for(let j=0; j<4; j++){
+        this.graphics.strokeRect(i*10*this.gridSize, j*10*this.gridSize, 10*this.gridSize, 10*this.gridSize);
+      }
+    }
+    this.gridSize = 48
     const prevX = this.objectHandler.getObject("player").x;
     const prevY = this.objectHandler.getObject("player").y;
-    this.gridSize = 10; // Size of each grid cell
-    let playerGridX = Math.floor(this.objectHandler.getObject("player").x / this.gridSize);
-    let playerGridY = Math.floor(this.objectHandler.getObject("player").y / this.gridSize);
+    
 
     const interact = () => { this.checkInteract(); };
     // Movement logic for each arrow key
@@ -276,51 +308,91 @@ class startLevelOne extends Phaser.Scene
     };
 
       if (this.cursors.left.isDown && !this.leftTimer) {
-        moveLeft();
+        if (this.bInput){
+          moveLeft.bind(this)();
+        }
       } else if (!this.cursors.left.isDown && this.leftTimer) {
         this.leftTimer.remove();
         this.leftTimer = null;
       }
 
       if (this.cursors.right.isDown && !this.rightTimer) {
-        moveRight();
+        console.log(this.bInput)
+        if (this.bInput){
+          moveRight.bind(this)();
+        }
       } else if (!this.cursors.right.isDown && this.rightTimer) {
         this.rightTimer.remove();
         this.rightTimer = null;
       }
 
       if (this.cursors.up.isDown && !this.upTimer) {
-        moveUp();
+        if (this.bInput){
+          moveUp.bind(this)();
+        }
       } else if (!this.cursors.up.isDown && this.upTimer) {
         this.upTimer.remove();
         this.upTimer = null;
       }
 
       if (this.cursors.down.isDown && !this.downTimer) {
-        moveDown();
+        if (this.bInput){
+          moveDown.bind(this)();
+        }
       } else if (!this.cursors.down.isDown && this.downTimer) {
         this.downTimer.remove();
         this.downTimer = null;
       }
       if (this.cursors.space.isDown && !this.spaceKeyIsPressed) {
-        interact();
+        if (this.bInput){
+          interact.bind(this)();
+        }
         this.spaceKeyIsPressed = true;
         this.time.delayedCall(500, () => {
           this.spaceKeyIsPressed = false;
         });
       
-        if (playerGridX !== this.prevGridX || playerGridY !== this.prevGridY) {
-          console.log("Hey, you're finally awake...");
-          this.prevGridX = playerGridX;
-          this.prevGridY = playerGridY;
-        }
+        
       }
-    }
+      let playerGridX = Math.floor(this.objectHandler.getObject("player").x / this.gridSize);
+      let playerGridY = Math.floor(this.objectHandler.getObject("player").y / this.gridSize);
+      let roomX = Math.floor(playerGridX / 10); // assuming each room is 10 tiles wide
+      let roomY = Math.floor(playerGridY / 10); // assuming each room is 10 tiles high
       
+      let currentRoom = `room_${roomX}_${roomY}`; // Create a string that uniquely identifies the room
+      if (!this.visitedRooms.includes(currentRoom)) {
+        if (this.prevDir == "left"){
+          moveLeft()
+          moveLeft()
+          gameCursors = game.input.keyboard.disable = false;
+          this.bInput = false;
+        }
+        else if(this.prevDir == "right"){
+          moveRight()
+          moveRight()
+          gameCursors = game.input.keyboard.disable = false;
+          this.bInput = false;
+        }
+        else if(this.prevDir == "up"){
+          moveUp()
+          moveUp()
+          gameCursors = game.input.keyboard.disable = false;
+          this.bInput = false;
+        }
+        else {
+          moveDown()
+          moveDown()
+          gameCursors = game.input.keyboard.disable = false;
+          this.bInput = false;
+        }
+        console.log("Hey, you're finally awake...");
+        this.visitedRooms.push(currentRoom);
+      }
+  } 
     updateText ()
     {
         this.text.setText(
-            `Arrow keys to move. Space to jump\nPress "C" to toggle debug visuals: ${this.showDebug ? 'on' : 'off'}`
+            `Arrow keys to move. Space to interact.`
         );
     }
 }
