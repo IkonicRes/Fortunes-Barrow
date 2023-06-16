@@ -1,0 +1,59 @@
+/* CSS Styles */
+canvas {
+    display: block;
+    margin: 0 auto;
+}
+
+#hud-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 150px;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: Arial, 'Times New Roman', Times, serif;
+    font-size: 16px;
+}
+
+.progress-bar {
+    width: 200px;
+    height: 40px;
+    margin: 0 10px;
+    background-color: #333;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#progress1 {
+    background-color: #ff9900; /* Orange */
+}
+
+#progress2 {
+    background-color: #00ff00; /* Green */
+}
+
+#progress3 {
+    background-color: #0000ff; /* Blue */
+}
+
+
+.button {
+    width: 40px;
+    height: 40px;
+    margin: 0 5px;
+    background-color: #333;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #666;
+}
