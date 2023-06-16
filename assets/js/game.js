@@ -100,6 +100,8 @@ class startLevelOne extends Phaser.Scene
     enemySpawnLocations;
     enemies;
     bInput;
+    hud;
+    hudVisible;
     preload() {
       this.objectHandler = new ObjectHandler()
       this.closedDoors = [1367, 1368, 1415, 1416]
@@ -111,7 +113,14 @@ class startLevelOne extends Phaser.Scene
       this.load.spritesheet('player', getAssetUrl('/assets/images/characters/T_char.png'), { frameWidth: 16, frameHeight: 16 });
       this.load.spritesheet('orc', getAssetUrl('/assets/images/characters/T_orc.png'), { frameWidth: 16, frameHeight: 16 });
       this.load.spritesheet('goblin', getAssetUrl('/assets/images/characters/T_goblin.png'), { frameWidth: 16, frameHeight: 16 });
-      this.load.spritesheet('skeleton', getAssetUrl('/assets/images/characters/T_skeleton.png'), { frameWidth: 16, frameHeight: 16 });
+      this.load.spritesheet('acidSplash', getAssetUrl('/assets/images/icons/acidSplash.png'), { frameWidth: 256, frameHeight: 256 });
+      this.load.spritesheet('mageArmor', getAssetUrl('/assets/images/icons/armore.png'), { frameWidth: 256, frameHeight: 256 });
+      this.load.spritesheet('bow', getAssetUrl('/assets/images/icons/ArrowBow.png'), { frameWidth: 256, frameHeight: 256 });
+      this.load.spritesheet('detectMagic', getAssetUrl('/assets/images/icons/delet_Magic.png'), { frameWidth: 256, frameHeight: 256 });
+      this.load.spritesheet('firebolt', getAssetUrl('/assets/images/icons/fire.png'), { frameWidth: 256, frameHeight: 256 });
+      this.load.spritesheet('healing', getAssetUrl('/assets/images/icons/healing.png'), { frameWidth: 256, frameHeight: 256 });
+      this.load.spritesheet('shield', getAssetUrl('/assets/images/icons/shield.png'), { frameWidth: 256, frameHeight: 256 });
+      this.load.spritesheet('sword', getAssetUrl('/assets/images/icons/sword.png'), { frameWidth: 256, frameHeight: 256 });
       this.prevDir = "up"
       this.enemies = ['orc', 'goblin', 'skeleton']
       this.enemySpawnLocations = [[[12,3], [16,3], [4,5]], [[20,0], [29,0], [24,0]], [[33,2], [35,2], [34,3]], [[4,11], [4,13], [4,15]], [[12,11], [14,13], [16,15]], [[27,11], [25,13], [24,14]], [[31,13], [34,13], [37,13]], [[2,21], [4,24], [6,22]], [[13,25], [14,22], [16,25]], [[31,24], [37,24], [34,21]], [[12,30], [14,34], [17,30]], [[23,34], [24,34], [25,34]], [[34, 34], [34,35], [34,36]]]
@@ -159,14 +168,120 @@ class startLevelOne extends Phaser.Scene
         this.prevGridX = Math.floor(this.objectHandler.getObject("player").x / this.gridSize);
         this.prevGridY = Math.floor(this.objectHandler.getObject("player").y / this.gridSize);
         this.visitedRooms = ['room_2_2'];
-        this.graphics = this.add.graphics({ lineStyle: { width: 2, color: 0xff0000 }, fillStyle: { color: 0xff0000 }});
         this.spawnEnemies()
+        
+        // Create the HUD as a rectangle covering the bottom third of the viewport
+        // Define section height based on the HUD size
+        this.hud = this.add.graphics();
+        this.hud.fillStyle(0x000000, 0.8); // Black color with 80% opacity
+        this.hud.fillRect(0, this.scale.height * 2 / 3, this.scale.width, this.scale.height / 3);
+        this.hud.setScrollFactor(0);  // The HUD won't scroll with the camera
+                // HUD position
+        let hudPosition = { x: 0, y: this.scale.height * 2 / 3 };  // HUD starts at 2/3 of the height
+        let hudHeight = this.scale.height / 3;
+        let sectionHeight = hudHeight / 4;
+        // Define the size of the progress bars
+        let progressBarDimensions = { width: 200, height: 20 };
+
+        // Define section height based on the HUD size
+        let sectionWidth = this.scale.width; // full width of HUD// height of HUD divided into four sections
+        
+        // Create progress bars
+        let progressBars = ['progressBar1', 'progressBar2', 'progressBar3'].map((bar, i) => {
+          let progressBar = this.add.graphics();
+          progressBar.fillStyle(0xffffff);
+          progressBar.fillRect(hudPosition.x, hudPosition.y + sectionHeight * i + progressBarDimensions.height / .5, progressBarDimensions.width, progressBarDimensions.height);
+          progressBar.setScrollFactor(0);
+          return progressBar;
+        });
 
 
+
+        // Image names and setup
+        let imageNames = ['orc', 'goblin', 'skeleton'];
+        let images = imageNames.map((name, i) => {
+          let image = this.add.image(hudPosition.x + sectionWidth / 6, hudPosition.y + sectionHeight * i + sectionHeight / 1.2, name).setDepth(9999);
+          image.setOrigin(0.5);
+          image.setScrollFactor(0);
+          return image;
+        });
+
+
+        // Text area setup
+        let textArea = this.add.text(hudPosition.x + sectionWidth / 3, hudPosition.y + sectionHeight * 2, 'This is sample Dialogue text', { font: '16px Arial', fill: '#ffffff' });
+        textArea.setOrigin(0.5);
+        textArea.setScrollFactor(0).setDepth(10000); // ensure it's above other elements
+
+        // Button images and setup
+        let buttonImages = ['actionButtonImage', 'passButtonImage', 'runButtonImage'];
+        
+        let buttonSpacing = (this.scale.height / 3) / 4; // Equal spaces for buttons
+        let buttonHeight = buttonSpacing * 0.8; // Height of each button (80% of the space, for example)
+        let buttons = []
+        buttonImages.forEach((img, i) => {
+          let button;
+          // The buttons are set to the quarter of the width of the HUD and have the same height
+          button = this.add.image(hudPosition.x + sectionWidth * .875, hudPosition.y + (buttonSpacing * i) + buttonSpacing / 1, img).setInteractive().setDepth(9999);
+          button.setOrigin(0.5);
+          button.setDisplaySize(sectionWidth / 6, buttonHeight);
+          button.setScrollFactor(0);
+          buttons.push(button);
+        });
+        // Button click handlers
+        buttons[0].on('pointerdown', () => { console.log("Action") });
+        buttons[1].on('pointerdown', () => { console.log("Pass") });
+        buttons[2].on('pointerdown', () => { console.log("Run") });
+
+        // Create the cycling image button separately
+        // List of images to cycle through
+        let cycleImages = ['acidSplash', 'mageArmor', 'bow', 'detectMagic', 'firebolt', 'healing', 'shield', 'sword'];
+        let currentImageIndex = 0;
+
+        // Determine the scale factor
+        let scaleFactor = .9;  // 256px (button size) / 1024px (image size)
+
+        // Create the cycling image button separately
+        let cyclingImageButton = this.add.image(hudPosition.x + (sectionWidth / 4) * 2.5, hudPosition.y + (hudHeight / 2), cycleImages[currentImageIndex]).setInteractive().setDepth(10000);
+        cyclingImageButton.setScale(scaleFactor, scaleFactor);  // Use setScale() method
+        cyclingImageButton.setScrollFactor(0);
+
+        // Add the cycling image button to the array of buttons
+        buttons.push(cyclingImageButton);
+
+        // Cycle to the next image when the button is clicked
+        cyclingImageButton.on('pointerdown', () => {
+            currentImageIndex = (currentImageIndex + 1) % cycleImages.length;  // Cycle index
+            cyclingImageButton.setTexture(cycleImages[currentImageIndex]);  // Change image
+            cyclingImageButton.setScale(scaleFactor, scaleFactor);  // Apply the scale factor to the new image
+        });
+    }
+  
+  boxTrigger (inputFunction) { inputFunction } 
+  
+  toggleHud() {
+    // If the HUD is currently visible, hide it
+    if (this.hudVisible) {
+        this.tweens.add({
+            targets: [this.hud, this.hudText],
+            y: this.scale.height,  // Move the HUD to below the bottom of the viewport
+            duration: 500,  // 500ms transition duration
+            ease: 'Power2'
+        });
+    }
+    // If the HUD is currently hidden, show it
+    else {
+        this.tweens.add({
+            targets: [this.hud, this.hudText],
+            y: this.scale.height * 2 / 3,  // Move the HUD to the bottom third of the viewport
+            duration: 500,  // 500ms transition duration
+            ease: 'Power2'
+        });
     }
 
-    boxTrigger (inputFunction) { inputFunction } 
-
+    // Toggle the HUD visibility
+    this.hudVisible = !this.hudVisible;
+  }  
+  
   swapTiles(doorTiles) {
     // Get the layer containing the tiles you want to swap
     let layer = this.map.getLayer('Collision').tilemapLayer;
@@ -249,13 +364,6 @@ class startLevelOne extends Phaser.Scene
   }           
   update(time, delta) {
     let gameCursors = this.cursors
-    this.graphics.clear();
-
-    for(let i=0; i<4; i++){
-      for(let j=0; j<4; j++){
-        this.graphics.strokeRect(i*10*this.gridSize, j*10*this.gridSize, 10*this.gridSize, 10*this.gridSize);
-      }
-    }
     this.gridSize = 48
     const prevX = this.objectHandler.getObject("player").x;
     const prevY = this.objectHandler.getObject("player").y;

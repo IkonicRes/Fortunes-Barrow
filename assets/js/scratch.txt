@@ -85,7 +85,32 @@
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~Mike~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+<<<<<<< feature/objectRequests
+var spellObjects = []
+var weaponObjects = []
+var monsterObjects = []
+function getSortData() {
+  for (let index = 0; index < spellData.length; index++) {
+    spellObjects.push(createSpell(spellData[index]))
+  }
+  console.log(spellObjects)
+=======
 
+function getSortData(){
+  var weaponData = fetchWeaponData()
+  var monsterData = fetchMonsterData()
+  var spellData = fetchSpellData()
+  console.log(weaponData)
+>>>>>>> main
+  for (let index = 0; index < weaponData.length; index++) {
+    weaponObjects.push(createWeapon(weaponData[index]))
+  }
+  console.log(weaponObjects)
+  for (let index = 0; index < monsterData.length; index++) {
+    monsterObjects.push(createMonster(monsterData[index]))
+  }
+  console.log(monsterObjects)
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~Rylee~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
