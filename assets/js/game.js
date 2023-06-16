@@ -629,11 +629,3 @@ function getSortData() {
   }
   console.log(monsterObjects)
 }
-
-fetchWeaponData()
-  .then(() => fetchSpellData())
-  .then(() => fetchMonsterData(desiredMonsters))
-  .then(() => setTimeout(getSortData, 1000));
-  
-
-
