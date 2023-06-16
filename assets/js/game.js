@@ -217,25 +217,16 @@ class startLevelOne extends Phaser.Scene
         
         let buttonSpacing = (this.scale.height / 3) / 4; // Equal spaces for buttons
         let buttonHeight = buttonSpacing * 0.8; // Height of each button (80% of the space, for example)
-        let buttons = [];
+        let buttons = []
         buttonImages.forEach((img, i) => {
           let button;
           // The buttons are set to the quarter of the width of the HUD and have the same height
-          button = this.add.image(hudPosition.x + sectionWidth * .875, hudPosition.y + (buttonSpacing * i) + buttonSpacing / 2, img).setInteractive().setDepth(9999);
+          button = this.add.image(hudPosition.x + sectionWidth * .875, hudPosition.y + (buttonSpacing * i) + buttonSpacing / 1, img).setInteractive().setDepth(9999);
           button.setOrigin(0.5);
           button.setDisplaySize(sectionWidth / 6, buttonHeight);
           button.setScrollFactor(0);
-
-          // Create a dark grey rectangular shape as the background
-          let bg = this.add.rectangle(button.x, button.y, button.width, button.height, 0x808080).setDepth(9998);
-          
-          // Create a text object on top of the button
-          let buttonText = ["Action", "Pass", "Run"][i];
-          let text = this.add.text(button.x, button.y, buttonText, { font: '16px Arial', fill: '#ffffff' }).setOrigin(0.5).setDepth(10000);
-
-          buttons.push({button, bg, text});
+          buttons.push(button);
         });
-
         // Button click handlers
         buttons[0].on('pointerdown', () => { console.log("Action") });
         buttons[1].on('pointerdown', () => { console.log("Pass") });
@@ -247,7 +238,7 @@ class startLevelOne extends Phaser.Scene
         let currentImageIndex = 0;
 
         // Determine the scale factor
-        let scaleFactor = 256 / 1024;  // 256px (button size) / 1024px (image size)
+        let scaleFactor = .9;  // 256px (button size) / 1024px (image size)
 
         // Create the cycling image button separately
         let cyclingImageButton = this.add.image(hudPosition.x + (sectionWidth / 4) * 2.5, hudPosition.y + (hudHeight / 2), cycleImages[currentImageIndex]).setInteractive().setDepth(10000);
