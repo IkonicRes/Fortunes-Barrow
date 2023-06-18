@@ -300,7 +300,7 @@ class EnemyHandler {
 		const distanceY = Math.abs(deltaY);
 	  
 		// Calculate the maximum allowed distance based on the enemy's range
-		const maxDistance = 1.5 * monsterObject.range * this.tileSize;
+		const maxDistance = monsterObject.range * this.tileSize;
 	  
 		// Check if the enemy is within the attack range
 		if (distanceX <= maxDistance && distanceY <= maxDistance) {
@@ -325,8 +325,15 @@ class EnemyHandler {
 		  this.enemy.shouldAttack = false; // Reset shouldAttack for next turn
 		}
 	  
+		// If it's the enemy's turn and they should attack, call the attack method
+		if (this.turnHandler.currentTurn === enemyName && this.enemy.shouldAttack) {
+		  this.attack(enemyName);
+		}
+	  
 		this.turnHandler.consumeTurn();
 	  }
+	  
+
 	  
 	  
 	  
@@ -343,12 +350,51 @@ class EnemyHandler {
 	  const tileDistanceY = Math.round(Math.abs(deltaY) / this.tileSize);
 	  return Math.max(tileDistanceX, tileDistanceY);
 	}
-  
-	performAttack(enemy) {
-	  // Implement the attack logic for the enemy
-	  // ...
-	  console.log(`Enemy ${enemy.name} is attacking!`);
-	}
+
+	attack(enemyName) {
+		const enemy = this.objectHandler.getObject(enemyName);
+		const player = this.objectHandler.getObject("player");
+	
+		// Calculate distance
+		const distanceX = Math.abs(player.x - enemy.x) / this.tileSize;
+		const distanceY = Math.abs(player.y - enemy.y) / this.tileSize;
+	
+		// Define the maximum distance for attack range
+		const maxDistance = 8 * this.tileSize; // Adjust the value as needed
+	
+		// Find the corresponding monster object
+		const monsterObject = monsterObjects.find(
+		  (obj) => obj.name === enemyName.replace(/\d+/g, "")
+		);
+	
+		// Check if the enemy is in attack range
+		if (distanceX <= maxDistance && distanceY <= maxDistance) {
+		  // Attack logic
+		  const damageRoll = () => {
+  const [dice, modifier] = monsterObject.dice.split("+");
+  const [numDice, diceType] = dice.split("d");
+
+  let damage = 0;
+
+  for (let i = 0; i < numDice; i++) {
+    damage += eval(`r1d${diceType}()`); // Evaluate the corresponding dice function
+  }
+
+  if (modifier) {
+    damage += parseInt(modifier);
+  }
+
+  console.log(`${enemyName} attacks the player for ${damage} damage.`);
+  // Update the player's health or apply the damage to the player here
+  // For example: this.objectHandler.getObject("player").health -= damage;
+};
+	
+		  damageRoll();
+		} else {
+		  console.log(`${enemyName} is not in attack range.`);
+		}
+	  }
+	
   
 	performBlock(enemy) {
 	  // Implement the block logic for the enemy
@@ -1189,10 +1235,13 @@ class startLevelOne extends Phaser.Scene {
 				this.enemyHandler.enemyMove(this.turnHandler.turns[0]);
 			  }
 			}
+			
 		  }
+	  
 	updateText() {
 		this.text.setText(`Arrow keys to move. Space to interact.`);
 	}
+
 }
 //Game Config
 const config = {
