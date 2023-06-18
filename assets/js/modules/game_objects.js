@@ -10,9 +10,75 @@ function getRoomIndex(objectName, scene) {
 }
 
 
+// OBJECT HANDLER FOR EASIER HANDLING OF MULTIPLE SPRITES
+class ObjectHandler {
+
+	constructor(scene) {
+		this.objects = {};
+		this.scene = scene;
+	}
+
+	getObject(name) { return this.objects[name]; }
+    update() { Object.keys(this.objects).forEach((element) => { this.objects[element].update(); }); }
+    
+	addObject(object, name) {
+		object.setData("name", name);
+		this.objects[name] = object;
+	}
+
+	removeObject(name) {
+		this.objects[name].destroy();
+		delete this.objects[name];
+	}
+
+	getAllEnemies(callback=(key) => {}) {
+		let tArray = []
+		Object.keys(this.objects).forEach((key) => {
+			if (["goblin", "skeleton", "orc"].includes(this.objects[key].texture.key)) {
+				tArray.push(key);
+				callback(key)
+			}
+		});
+		return tArray;
+	}
+
+	runForEnemiesInRoom(roomIndex, callback=(key) => {}) {
+		Object.keys(this.objects).forEach((key) => {
+			if (getRoomIndex(key, this.scene) == roomIndex) {
+				if (["goblin", "skeleton", "orc"].includes(this.objects[key].texture.key)) {
+					callback(key)
+				}
+			}
+		})
+	}
+
+	getEnemiesInRoom(roomIndex, callback=(key) => {}) {
+		let tArray = []
+		Object.keys(this.objects).forEach((key) => {
+			if (getRoomIndex(key, this.scene) == roomIndex) {
+				if (["goblin", "skeleton", "orc"].includes(this.objects[key].texture.key)) {
+					tArray.push(key);
+					callback(key)
+				}
+			}
+		})
+		return tArray
+	}
+
+}
+
+class GameObject {
+	constructor(pos, sprite, name, scene) {
+		scene.objectHandler.addObject(
+			scene.physics.add.sprite(pos[0], pos[1], sprite),
+			name
+		);
+	}
+}
+
 
 
 
 export {
-    getRoomIndex
+    getRoomIndex, GameObject, ObjectHandler
 }

@@ -31,7 +31,7 @@ class EnemyHandler {
 		const distanceY = Math.abs(deltaY);
 	  
 		// Calculate the maximum allowed distance based on the enemy's range
-		const maxDistance = monsterObject.range * this.tileSize;
+		const maxDistance = (monsterObject.range + 1) * this.tileSize;
 	  
 		// Check if the enemy is within the attack range
 		if (distanceX <= maxDistance && distanceY <= maxDistance) {

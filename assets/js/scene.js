@@ -1,5 +1,5 @@
 import { getAssetUrl } from "./modules/helper.js";
-import { DoorHandler } from "./doors.js";
+import { DoorHandler } from "./modules/doors.js";
 import { GameObject, ObjectHandler, getRoomIndex} from "./modules/game_objects.js";
 import { TurnHandler } from "./modules/turn_handler.js";
 import { HUD } from "./modules/hud.js";
@@ -25,7 +25,6 @@ class startLevelOne extends Phaser.Scene {
 	inputDelta;
 	inputDelay;
 	closedDoors;
-	prevDir;
 	spaceKeyIsPressed;
 	gridSize;
 	objectHandler;
@@ -40,7 +39,7 @@ class startLevelOne extends Phaser.Scene {
 	animatingIntoRoom;
 	gridSize = 48;
 	currentRoom;
-	tileSize = 24
+    playerTileset;
 
 	preload() {
 		this.objectHandler = new ObjectHandler(this);
@@ -52,7 +51,7 @@ class startLevelOne extends Phaser.Scene {
 		const tilemapPath = getAssetUrl("/assets/images/tileset/dungeonTiles/fantasyDungeonTilesetTransparent.png");
 		this.load.tilemapTiledJSON("map", getAssetUrl("/assets/images/tileset/levels/L_01/L_1.json"));
 		this.load.spritesheet("fantasyDungeonTilesetTransparent", tilemapPath, { frameWidth: 16, frameHeight: 16 });
-		this.load.spritesheet("player", getAssetUrl("/assets/images/characters/T_char.png"), { frameWidth: 16, frameHeight: 16 });
+        this.load.atlas('playerAtlas', 'assets/images/characters/playerAtlas.png', 'assets/images/characters/playerAtlas.json');
 		this.load.spritesheet("orc",
 			getAssetUrl("/assets/images/characters/T_orc.png"),
 			{ frameWidth: 16, frameHeight: 16 }
@@ -107,7 +106,6 @@ class startLevelOne extends Phaser.Scene {
 			getAssetUrl("/assets/images/icons/sword.png"),
 			{ frameWidth: 256, frameHeight: 256 }
 		);
-		this.prevDir = "up";
 		this.enemies = ["orc", "goblin", "skeleton"];
 		this.enemySpawnLocations = [
 			[
@@ -199,7 +197,86 @@ class startLevelOne extends Phaser.Scene {
 		const player = this.objectHandler.getObject("player")
 		player.setScale(playerScale);
 		this.playerHandler = new PlayerHandler(player, this)
-
+		// this.anims.create({
+        //     key: 'left',
+        //     frames: [
+        //         { key: 'playerAtlas', frame: 165 },
+        //         { key: 'playerAtlas', frame: 166 },
+        //         { key: 'playerAtlas', frame: 167 },
+        //         { key: 'playerAtlas', frame: 168 },
+        //         { key: 'playerAtlas', frame: 169 },
+        //         { key: 'playerAtlas', frame: 170 },
+        //         { key: 'playerAtlas', frame: 171 },
+        //         { key: 'playerAtlas', frame: 172 }
+        //     ],
+        //     frameRate: 10,
+        //     repeat: -1
+        // });
+        
+        // this.anims.create({
+        //     key: 'right',
+        //     frames: [
+        //         { key: 'playerAtlas', frame: 229 },
+        //         { key: 'playerAtlas', frame: 230 },
+        //         { key: 'playerAtlas', frame: 231 },
+        //         { key: 'playerAtlas', frame: 232 },
+        //         { key: 'playerAtlas', frame: 233 },
+        //         { key: 'playerAtlas', frame: 234 },
+        //         { key: 'playerAtlas', frame: 235 },
+        //         { key: 'playerAtlas', frame: 236 }
+        //     ],
+        //     frameRate: 10,
+        //     repeat: -1
+        // });
+        
+        // this.anims.create({
+        //     key: 'up',
+        //     frames: [
+        //         { key: 'playerAtlas', frame: 133 },
+        //         { key: 'playerAtlas', frame: 134 },
+        //         { key: 'playerAtlas', frame: 135 },
+        //         { key: 'playerAtlas', frame: 136 },
+        //         { key: 'playerAtlas', frame: 137 },
+        //         { key: 'playerAtlas', frame: 138 },
+        //         { key: 'playerAtlas', frame: 139 },
+        //         { key: 'playerAtlas', frame: 140 }
+        //     ],
+        //     frameRate: 10,
+        //     repeat: -1
+        // });
+        
+        // this.anims.create({
+        //     key: 'left',
+        //     frames: [
+        //         { key: 'playerAtlas', frame: 197 },
+        //         { key: 'playerAtlas', frame: 198 },
+        //         { key: 'playerAtlas', frame: 199 },
+        //         { key: 'playerAtlas', frame: 200 },
+        //         { key: 'playerAtlas', frame: 201 },
+        //         { key: 'playerAtlas', frame: 202 },
+        //         { key: 'playerAtlas', frame: 203 },
+        //         { key: 'playerAtlas', frame: 204 }
+        //     ],
+        //     frameRate: 10,
+        //     repeat: -1
+        // });
+        
+        // this.anims.create({
+        //     key: 'stop-left',
+        //     frames: [{ key: 'playerAtlas', frame: 172 }],
+        // });
+        // this.anims.create({
+        //     key: 'stop-right',
+        //     frames: [{ key: 'playerAtlas', frame: 236 }],
+        // });
+        // this.anims.create({
+        //     key: 'stop-up',
+        //     frames: [{ key: 'playerAtlas', frame: 140 }],
+        // });
+        // this.anims.create({
+        //     key: 'stop-down',
+        //     frames: [{ key: 'playerAtlas', frame: 204 }],
+        // });
 		this.overlay = this.map.createLayer("Overlay", terrainLayer, 0, 0);
 		this.terrain.setScale(scale);
 		this.overlay.setScale(scale);
@@ -211,9 +288,17 @@ class startLevelOne extends Phaser.Scene {
 			player,
 			this.collision
 		);
+        const frameWidth = 32; // The width of a frame
+        const frameHeight = 32; // The height of a frame
+        const spacing = 0; // The spacing between frames, if any
+        const margin = 0; // The margin around the frames, if any
+    
+        // Create a texture with 32x32 px frames
 
-		this.cameras.main.startFollow(player);
 
+
+        this.cameras.main.startFollow(player);
+        player.anims.play('up');
 		this.debugGraphics = this.add.graphics();
 		this.speed = 32;
 		this.movementDelay = 100; // Delay between each movement step in milliseconds
@@ -236,7 +321,7 @@ class startLevelOne extends Phaser.Scene {
 		this.enemyHandler = new EnemyHandler(
 			this.objectHandler,
 			this.turnHandler,
-			this.tileSize,
+			this.gridSize,
 			this.map,
 			this.dndApiHandler.monsterObjects,
 			this
@@ -278,14 +363,12 @@ class startLevelOne extends Phaser.Scene {
 	}
 
 	checkInteract() {
-		let intObj = this.getCollision(this.prevDir);
+		let intObj = this.getCollision(this.playerHandler.prevDir);
 		console.log(intObj);
-		if (
-			Object.keys(this.doorHandler.doorTileTypes).includes(intObj.toString())
-		)
+		if ( Object.keys(this.doorHandler.doorTileTypes).includes(intObj.toString()) )
 		{
 			console.log("Door!");
-			let playerTargetCoords = this.getCollisionCoordinates(this.prevDir);
+			let playerTargetCoords = this.getCollisionCoordinates(this.playerHandler.prevDir);
 			let playerSize = 16 * 3;
 			let doorLocation = {
 				x: playerTargetCoords[0] * playerSize,
@@ -411,9 +494,10 @@ class startLevelOne extends Phaser.Scene {
 		{
 			this.animatingIntoRoom = true;
 			console.log("[Animation] Enter Room started");
+            this.hud.toggleHud()
 			this.visitedRooms.push(this.currentRoom);
 			console.log(this.turnHandler.turns);
-			switch (this.prevDir)
+			switch (this.playerHandler.prevDir)
 			{
 				case "left": {
 					if (this.playerHandler.leftTimer)
@@ -465,12 +549,15 @@ class startLevelOne extends Phaser.Scene {
 			this.checkInteract();
 		};
 		if (this.cursors.space.isDown && !this.spaceKeyIsPressed) {
+			
 			if (this.bInput) { interact.bind(this)(); }
 			this.spaceKeyIsPressed = true;
 			this.time.delayedCall(500, () => {
 				this.spaceKeyIsPressed = false;
 			});
+			
 		}
+		
 	}
 
 	playerAction() {
@@ -495,7 +582,9 @@ class startLevelOne extends Phaser.Scene {
 	}
 
 	playerRun() {
-		this.playerHandler.moveToDoor()
+        if (this.turnHandler.turns.length != 0) {
+            this.playerHandler.moveToDoor()
+        }
 	}
 
 	playerPassTurn() {
@@ -524,6 +613,13 @@ class startLevelOne extends Phaser.Scene {
 					if (this.playerHandler.rightTimer != null) { this.playerHandler.rightTimer.remove(); this.playerHandler.rightTimer = null }
 				}
 			}
+            // if (this.cursors.left.isUp && this.cursors.right.isUp && this.cursors.up.isUp && this.cursors.down.isUp) {
+            //     if (this.playerHandler.anims.currentAnim) {
+            //         const currentKey = this.player.anims.currentAnim.key;
+            //         const direction = currentKey.split('-')[1]; // Get the direction from the key of the current animation
+            //         this.playerHandler.anims.play('stop-' + direction, true);
+            //     }
+            // }
 		} else {
 			if (!this.animatingIntoRoom) {
 				this.enemyHandler.enemyMove(this.turnHandler.turns[0]);

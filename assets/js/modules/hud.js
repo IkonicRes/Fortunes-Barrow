@@ -33,6 +33,23 @@ class ProgressBar {
         this.progress.fillStyle(this.color, 0.7);
         this.progress.fillRect(this.pos.x, this.pos.y, this.size.width * (this.currentProgress / 100), this.size.height);
     }
+    setVisible(bool) { this.progress.setVisible(bool); this.bg.setVisible(bool); }
+}
+
+class Component {
+    constructor(object) {
+        this.component = object
+        this.origin = {}
+    }
+
+    setOrigin() {
+        this.origin = {x: this.component.x, y: this.component.y}
+    }
+
+    setVisible(bool) {
+        this.component.setVisible(bool)
+    }
+    
 }
 
 class HUD {
@@ -41,13 +58,12 @@ class HUD {
         this.hudVisible = true;  // Assuming the HUD is initially visible
 
         // Create HUD components
-        this.hudComponents = [[], [], [], [], []];
         this.progressBars = [];
         this.images = [];
         this.textArea;
         this.buttons = [];
         this.cyclingImageButton;
-		// this.hudComponents.push(this.images, this.progressBars, this.textArea, this.buttons, this.cyclingImageButton);
+        this.hudComponents = [];
     }
 	
     create() {
@@ -58,15 +74,18 @@ class HUD {
         let progressBarDimensions = { width: 200, height: 20 };
         let sectionWidth = scale.width;
 
-        this.hud = this.scene.add.graphics();
-        this.hud.fillStyle(0x000000, 0.8);
-        this.hud.fillRect(
+        this.hud = new Component(this.scene.add.graphics())
+        this.hud.component.fillStyle(0x000000, 0.8);
+        this.hud.component.fillRect(
             0,
             (scale.height * 2) / 3,
             scale.width,
             scale.height / 3
         );
-        this.hud.setScrollFactor(0);
+        this.hud.component.setScrollFactor(0);
+        this.hud.setOrigin()
+
+        //if we wrap the elements in that component class itll be able to remember their original location and use that to return to, they were all returning to the same place before//
 
         let barNames = ["progressBar1", "progressBar2", "progressBar3"];
 
@@ -143,44 +162,40 @@ class HUD {
             .setDepth(9999);
         this.cyclingImageButton.setOrigin(0.5);
         this.cyclingImageButton.setScrollFactor(0);
+        
+		this.hudComponents.push(...this.images, ...this.progressBars, ...this.buttons, this.cyclingImageButton, this.textArea, this.hud); 
+        console.log(this.hudComponents)
     }
 
-
-	toggleHud() {
-        // If the HUD is currently visible, hide it
+    toggleHud() {
+        console.log(this.hudComponents);
         if (this.hudVisible) {
           this.scene.tweens.add({
             targets: this.hudComponents,
-            y: this.scene.scale.height, // Move the HUD to below the bottom of the viewport
-            duration: 500, // 500ms transition duration
+            y: this.scene.scale.height,
+            duration: 500,
             ease: "Power2",
             onComplete: () => {
               this.hudComponents.forEach((component) => {
-                component.forEach((element) => {
-                  element.setVisible(false);
-                });
+                  component.setVisible(false);
               });
             },
           });
-        }
-        // If the HUD is currently hidden, show it
-        else {
+        } else {
           this.hudComponents.forEach((component) => {
-            component.forEach((element) => {
-              element.setVisible(true);
-            });
-          });
-      
-          this.scene.tweens.add({
-            targets: this.hudComponents,
-            y: (this.scene.scale.height * 2) / 3, // Move the HUD to the bottom third of the viewport
-            duration: 500, // 500ms transition duration
-            ease: "Power2",
+            component.setVisible(true);
+            if (component.origin) {  // check if origin is defined
+                this.scene.tweens.add({
+                    targets: component,
+                    y: component.origin.y,
+                    duration: 500,
+                    ease: "Power2",
+                });
+            }
           });
         }
-      
-        // Toggle the HUD visibility
         this.hudVisible = !this.hudVisible;
+    
       }
       
 
