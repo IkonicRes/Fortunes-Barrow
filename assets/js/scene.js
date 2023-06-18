@@ -1,5 +1,5 @@
 import { getAssetUrl } from "./modules/helper.js";
-import { DoorHandler } from "./modules/doors.js";
+import { DoorHandler } from "./doors.js";
 import { GameObject, ObjectHandler, getRoomIndex} from "./modules/game_objects.js";
 import { TurnHandler } from "./modules/turn_handler.js";
 import { HUD } from "./modules/hud.js";
