@@ -1,6 +1,5 @@
 import { getRoomIndex } from "./modules/game_objects.js";
 
-var repoName = "/Team-Grumbly-Project01";
 const baseDir = window.location.pathname.substring(0, window.location.pathname.lastIndexOf("/"));
 const r1d4 = () => Math.ceil(Math.random() * 4);
 const r1d6 = () => Math.ceil(Math.random() * 6);
@@ -10,10 +9,169 @@ const r1d12 = () => Math.ceil(Math.random() * 12);
 const r1d20 = () => Math.ceil(Math.random() * 20);
 const r1d100 = () => Math.ceil(Math.random() * 100);
 
+var repoName = "/Team-Grumbly-Project01";
+var desiredSpells = ["Mage Armor", "Acid Splash"];
+var weaponData = [];
+var spellData = [];
+var spellObjects = [];
+var weaponObjects = [];
+var monsterObjects = [];
+var desiredMonsters = ["orc", "skeleton", "goblin"];
+var monsterData = [];
+var ranges = {
+	orc: 2,
+	goblin: 1,
+	skeleton: 3
+}
 function getAssetUrl(assetPath) {
 	return baseDir + assetPath;
 }
 
+/// DND Fetch calls ///
+function createMonster(monsterCurrentData) {
+    var monsterName = monsterCurrentData.name.toLowerCase();  // convert name to lower case
+
+    var monsterObject = {
+        name: monsterName,
+        hp: monsterCurrentData.hit_points,
+        dice: monsterCurrentData.actions[0].damage[0].damage_dice,
+        range: ranges[monsterName]  // use the lower case name to fetch the range
+    };
+    console.log(monsterObject)
+    return monsterObject;
+}
+
+
+function createSpell(spellCurrentData) {
+	// console.log(monsterCurrentData.hit_points)
+	var spellObject = {
+		name: spellCurrentData.name,
+		desc: spellCurrentData.desc,
+		damage: spellCurrentData.damage,
+		range: spellCurrentData.range,
+		duration: spellCurrentData.duration,
+	};
+	return spellObject;
+}
+
+function createWeapon(weaponCurrentData) {
+	var weaponObject = {
+		name: weaponCurrentData.name,
+		damage: weaponCurrentData.damage,
+		range: weaponCurrentData.weapon_range,
+	};
+	return weaponObject;
+}
+
+
+function fetchMonsterData(monsters) {
+	return (
+		Promise.all([
+			fetch("https://www.dnd5eapi.co/api/monsters/" + monsters[0]).then(
+				(response) => response.json()
+			),
+			fetch("https://www.dnd5eapi.co/api/monsters/" + monsters[1]).then(
+				(response) => response.json()
+			),
+			fetch("https://www.dnd5eapi.co/api/monsters/" + monsters[2]).then(
+				(response) => response.json()
+			),
+		])
+			.then((data) => {
+				monsterData = data;
+				console.log(monsterData);
+				return monsterData;
+			})
+			//   .then(monsterData => console.log(monsterData))
+			.catch((error) => console.error("Error:", error))
+	);
+}
+
+function fetchWeaponData() {
+	return Promise.all([
+		fetch("https://www.dnd5eapi.co/api/equipment/shortbow").then((response) =>
+			response.json()
+		),
+		fetch("https://www.dnd5eapi.co/api/equipment/longsword").then((response) =>
+			response.json()
+		),
+		fetch("https://www.dnd5eapi.co/api/equipment/shield").then((response) =>
+			response.json()
+		),
+	]).then((data) => {
+		weaponData = data;
+		return data;
+	});
+}
+function fetchSpellData() {
+	return Promise.all([
+		fetch("https://www.dnd5eapi.co/api/spells/mage-armor").then((response) =>
+			response.json()
+		),
+		fetch("https://www.dnd5eapi.co/api/spells/acid-splash").then((response) =>
+			response.json()
+		),
+		fetch("https://www.dnd5eapi.co/api/spells/detect-magic").then((response) =>
+			response.json()
+		),
+		fetch("https://www.dnd5eapi.co/api/spells/fire-bolt").then((response) =>
+			response.json()
+		),
+		fetch("https://www.dnd5eapi.co/api/spells/heal").then((response) =>
+			response.json()
+		),
+	]).then((data) => {
+		spellData = data; // Assign the resolved data to the existing spellData variable
+		return data;
+	});
+}
+async function getSortData() {
+    try {
+        // Wait for each Promise to resolve before moving to the next line
+        var weaponData = await fetchWeaponData()
+        var monsterData = await fetchMonsterData(desiredMonsters)
+        var spellData = await fetchSpellData(desiredSpells)
+        console.log(weaponData)
+        
+        for (let index = 0; index < weaponData.length; index++) {
+            weaponObjects.push(createWeapon(weaponData[index]))
+        }
+        
+        for (let index = 0; index < monsterData.length; index++) {
+            monsterObjects.push(createMonster(monsterData[index]))
+        }
+        
+        for (let index = 0; index < spellData.length; index++) {
+            spellObjects.push(createSpell(spellData[index])) // note that you were calling createMonster instead of createSpell here
+        }
+        console.log(monsterObjects, weaponObjects, spellObjects)
+    } catch (error) {
+        console.error("Error:", error)
+    }
+}
+
+
+getSortData()
+// function getSortData(){
+//   var weaponData = fetchWeaponData()
+//   var monsterData = fetchMonsterData()
+//   var spellData = fetchSpellData()
+//   console.log(weaponData)
+// >>>>>>> main
+//   for (let index = 0; index < weaponData.length; index++) {
+//     weaponObjects.push(createWeapon(weaponData[index]))
+//   }
+//   console.log(weaponObjects)
+//   for (let index = 0; index < monsterData.length; index++) {
+//     monsterObjects.push(createMonster(monsterData[index]))
+//   }
+//   console.log(monsterObjects)
+class PlayerHandler {
+	constructor(player){
+		this.playerCurHealth = 100
+	}
+}
+//Door Handling object
 class DoorHandler {
 	constructor(scene) {
 		this.mapSize = {
@@ -112,7 +270,95 @@ class DoorHandler {
 	}
 }
 
+class EnemyHandler {
+	constructor(objectHandler, turnHandler, tileSize = 32, map, monsterObjects) {
+	  this.objectHandler = objectHandler;
+	  this.turnHandler = turnHandler;
+	  this.tileSize = tileSize;
+	  this.map = map;
+	  this.monsterObjects = monsterObjects;
+	}
+  
+	enemyMove(enemyName) {
+		console.log("Enemy Move called for", enemyName);
+		const monsterName = enemyName.replace(/\d+$/, ""); // Remove numbers from enemyName
+		const monsterObject = this.monsterObjects.find(obj => obj.name === monsterName);
+		if (!monsterObject) {
+		  console.log(`Monster object not found for ${enemyName}`);
+		  return;
+		}
+		console.log("Monster Object for", enemyName, "is", monsterObject);
+	  
+		this.enemy = this.objectHandler.getObject(enemyName); // Assign this.enemy
+	  
+		const player = this.objectHandler.getObject("player");
+		const deltaX = player.x - this.enemy.x;
+		const deltaY = player.y - this.enemy.y;
+	  
+		// Calculate the distance to the player
+		const distanceX = Math.abs(deltaX);
+		const distanceY = Math.abs(deltaY);
+	  
+		// Calculate the maximum allowed distance based on the enemy's range
+		const maxDistance = 1.5 * monsterObject.range * this.tileSize;
+	  
+		// Check if the enemy is within the attack range
+		if (distanceX <= maxDistance && distanceY <= maxDistance) {
+		  // Attack or block logic goes here
+		  this.enemy.shouldAttack = true;
+		  console.log(`${enemyName} is in range for attack or block`);
+		} else {
+		  // Move towards the player's position
+		  if (
+			distanceX > maxDistance - this.tileSize ||
+			distanceY > maxDistance - this.tileSize
+		  ) {
+			// If outside attack range, move towards the player
+			if (distanceX > distanceY) {
+			  // Move horizontally towards the player
+			  this.enemy.x += Math.sign(deltaX) * this.tileSize;
+			} else {
+			  // Move vertically towards the player
+			  this.enemy.y += Math.sign(deltaY) * this.tileSize;
+			}
+		  }
+		  this.enemy.shouldAttack = false; // Reset shouldAttack for next turn
+		}
+	  
+		this.turnHandler.consumeTurn();
+	  }
+	  
+	  
+	  
+	  
+	  
+  
+	getMonsterObject(enemyName) {
+	  // Find the monster object in the monsterObjects array with the same name
+	  return this.monsterObjects.find((monster) => monster.name === enemyName);
+	}
+  
+	calculateTileDistance(deltaX, deltaY) {
+	  const tileDistanceX = Math.round(Math.abs(deltaX) / this.tileSize);
+	  const tileDistanceY = Math.round(Math.abs(deltaY) / this.tileSize);
+	  return Math.max(tileDistanceX, tileDistanceY);
+	}
+  
+	performAttack(enemy) {
+	  // Implement the attack logic for the enemy
+	  // ...
+	  console.log(`Enemy ${enemy.name} is attacking!`);
+	}
+  
+	performBlock(enemy) {
+	  // Implement the block logic for the enemy
+	  // ...
+	  console.log(`Enemy ${enemy.name} is blocking!`);
+	}
+  }
+  
 // OBJECT HANDLER FOR EASIER HANDLING OF MULTIPLE SPRITES
+
 class ObjectHandler {
 	constructor(scene) {
 		this.objects = {};
@@ -180,7 +426,7 @@ class GameObject {
 		);
 	}
 }
-
+//Turn Handler for turn combat
 class TurnHandler {
 	constructor() {
 		this.turns = [];
@@ -202,6 +448,145 @@ class TurnHandler {
 	addToNextTurn(name) { this.turns = this.turns.unshift(name); }
 }
 
+class HUD {
+    constructor(scene) {
+        this.scene = scene;
+        this.hudVisible = true;  // Assuming the HUD is initially visible
+
+        // Create HUD components
+        this.hudComponents = [];
+        this.progressBars = [];
+        this.images = [];
+        this.textArea;
+        this.buttons = [];
+        this.cyclingImageButton;
+		this.hudComponents.push(this.images, this.progressBars, this.textArea, this.buttons, this.cyclingImageButton);
+    }
+	
+    create() {
+        let scale = this.scene.scale;
+        let hudPosition = { x: 0, y: (scale.height * 2) / 3 }; 
+        let hudHeight = scale.height / 3;
+        let sectionHeight = hudHeight / 4;
+        let progressBarDimensions = { width: 200, height: 20 };
+        let sectionWidth = scale.width;
+
+        this.hud = this.scene.add.graphics();
+        this.hud.fillStyle(0x000000, 0.8);
+        this.hud.fillRect(
+            0,
+            (scale.height * 2) / 3,
+            scale.width,
+            scale.height / 3
+        );
+        this.hud.setScrollFactor(0);
+
+        let barNames = ["progressBar1", "progressBar2", "progressBar3"];
+        this.progressBars = barNames.map((bar, i) => {
+            let progressBar = this.scene.add.graphics();
+            progressBar.fillStyle(0xffffff);
+            progressBar.fillRect(
+                hudPosition.x,
+                hudPosition.y + sectionHeight * i + progressBarDimensions.height / 0.5,
+                progressBarDimensions.width,
+                progressBarDimensions.height
+            );
+            progressBar.setScrollFactor(0);
+            return progressBar;
+        });
+
+        let imageNames = ["orc", "goblin", "skeleton"];
+        this.images = imageNames.map((name, i) => {
+            let image = this.scene.add
+                .image(
+                    hudPosition.x + sectionWidth / 6,
+                    hudPosition.y + sectionHeight * i + sectionHeight / 1.2,
+                    name
+                )
+                .setDepth(9999);
+            image.setOrigin(0.5);
+            image.setScrollFactor(0);
+            return image;
+        });
+
+        this.textArea = this.scene.add.text(
+            hudPosition.x + sectionWidth / 3,
+            hudPosition.y + sectionHeight * 2,
+            "This is sample Dialogue text",
+            { font: "16px Arial", fill: "#ffffff" }
+        );
+        this.textArea.setOrigin(0.5);
+        this.textArea.setScrollFactor(0).setDepth(10000);
+
+        let buttonImages = [
+            "actionButtonImage",
+            "passButtonImage",
+            "runButtonImage",
+        ];
+        let buttonSpacing = scale.height / 3 / 4;
+        let buttonHeight = buttonSpacing * 0.8;
+
+        this.buttons = buttonImages.map((img, i) => {
+            let button = this.scene.add
+                .image(
+                    hudPosition.x + sectionWidth * 0.875,
+                    hudPosition.y + buttonSpacing * i + buttonSpacing / 1,
+                    img
+                )
+                .setInteractive()
+                .setDepth(9999);
+            button.setOrigin(0.5);
+            button.setDisplaySize(sectionWidth / 6, buttonHeight);
+            button.setScrollFactor(0);
+            return button;
+        });
+
+        this.buttons[0].on("pointerdown", () => {
+            console.log("Action");
+        });
+        this.buttons[1].on("pointerdown", ()=> { this.scene.playerPassTurn() });
+        this.buttons[2].on("pointerdown", () => {
+            console.log("Run");
+        });
+
+        this.cyclingImageButton = this.scene.add
+            .image(
+                hudPosition.x + sectionWidth / 1.25,
+                hudPosition.y + sectionHeight * 2 + sectionHeight / 1.5,
+                "orc"
+            )
+            .setDepth(9999);
+        this.cyclingImageButton.setOrigin(0.5);
+        this.cyclingImageButton.setScrollFactor(0);
+    }
+
+
+	toggleHud() {
+        // If the HUD is currently visible, hide it
+        if (this.hudVisible) {
+            this.scene.tweens.add({
+                targets: this.hudComponents,
+                y: this.scene.scale.height, // Move the HUD to below the bottom of the viewport
+                duration: 500, // 500ms transition duration
+                ease: "Power2",
+            });
+        }
+        // If the HUD is currently hidden, show it
+        else {
+            this.scene.tweens.add({
+                targets: this.hudComponents,
+                y: (this.scene.scale.height * 2) / 3, // Move the HUD to the bottom third of the viewport
+                duration: 500, // 500ms transition duration
+                ease: "Power2",
+            });
+        }
+
+        // Toggle the HUD visibility
+        this.hudVisible = !this.hudVisible;
+    }
+
+}
+//Level One
 class startLevelOne extends Phaser.Scene {
 	showDebug;
 	debugGraphics;
@@ -228,6 +613,7 @@ class startLevelOne extends Phaser.Scene {
 	turnHandler;
 	animatingIntoRoom;
 	gridSize = 48;
+	currentRoom;
 
 	preload() {
 		this.animatingIntoRoom = false;
@@ -422,178 +808,25 @@ class startLevelOne extends Phaser.Scene {
 		);
 		this.visitedRooms = ["room_2_2"];
 		this.spawnEnemies();
-
+		this.hud = new HUD(this);
+        this.hud.create();
 		// Create the HUD as a rectangle covering the bottom third of the viewport
-		// Define section height based on the HUD size
-		this.hud = this.add.graphics();
-		this.hud.fillStyle(0x000000, 0.8); // Black color with 80% opacity
-		this.hud.fillRect(
-			0,
-			(this.scale.height * 2) / 3,
-			this.scale.width,
-			this.scale.height / 3
-		);
-		this.hud.setScrollFactor(0); // The HUD won't scroll with the camera
-		// HUD position
-		let hudPosition = { x: 0, y: (this.scale.height * 2) / 3 }; // HUD starts at 2/3 of the height
-		let hudHeight = this.scale.height / 3;
-		let sectionHeight = hudHeight / 4;
-		// Define the size of the progress bars
-		let progressBarDimensions = { width: 200, height: 20 };
-
-		// Define section height based on the HUD size
-		let sectionWidth = this.scale.width; // full width of HUD// height of HUD divided into four sections
-
-		// Create progress bars
-		let progressBars = ["progressBar1", "progressBar2", "progressBar3"].map(
-			(bar, i) => {
-				let progressBar = this.add.graphics();
-				progressBar.fillStyle(0xffffff);
-				progressBar.fillRect(
-					hudPosition.x,
-					hudPosition.y +
-					sectionHeight * i +
-					progressBarDimensions.height / 0.5,
-					progressBarDimensions.width,
-					progressBarDimensions.height
-				);
-				progressBar.setScrollFactor(0);
-				return progressBar;
-			}
-		);
-
-		// Image names and setup
-		let imageNames = ["orc", "goblin", "skeleton"];
-		let images = imageNames.map((name, i) => {
-			let image = this.add
-				.image(
-					hudPosition.x + sectionWidth / 6,
-					hudPosition.y + sectionHeight * i + sectionHeight / 1.2,
-					name
-				)
-				.setDepth(9999);
-			image.setOrigin(0.5);
-			image.setScrollFactor(0);
-			return image;
-		});
-
-		// Text area setup
-		let textArea = this.add.text(
-			hudPosition.x + sectionWidth / 3,
-			hudPosition.y + sectionHeight * 2,
-			"This is sample Dialogue text",
-			{ font: "16px Arial", fill: "#ffffff" }
-		);
-		textArea.setOrigin(0.5);
-		textArea.setScrollFactor(0).setDepth(10000); // ensure it's above other elements
-
-		// Button images and setup
-		let buttonImages = [
-			"actionButtonImage",
-			"passButtonImage",
-			"runButtonImage",
-		];
-
-		let buttonSpacing = this.scale.height / 3 / 4; // Equal spaces for buttons
-		let buttonHeight = buttonSpacing * 0.8; // Height of each button (80% of the space, for example)
-		let buttons = [];
-		buttonImages.forEach((img, i) => {
-			let button;
-			// The buttons are set to the quarter of the width of the HUD and have the same height
-			button = this.add
-				.image(
-					hudPosition.x + sectionWidth * 0.875,
-					hudPosition.y + buttonSpacing * i + buttonSpacing / 1,
-					img
-				)
-				.setInteractive()
-				.setDepth(9999);
-			button.setOrigin(0.5);
-			button.setDisplaySize(sectionWidth / 6, buttonHeight);
-			button.setScrollFactor(0);
-			buttons.push(button);
-		});
-		// Button click handlers
-		buttons[0].on("pointerdown", () => {
-			console.log("Action");
-		});
-		buttons[1].on("pointerdown", ()=> { this.playerPassTurn() });
-		buttons[2].on("pointerdown", () => {
-			console.log("Run");
-		});
-
-		// Create the cycling image button separately
-		// List of images to cycle through
-		let cycleImages = [
-			"acidSplash",
-			"mageArmor",
-			"bow",
-			"detectMagic",
-			"firebolt",
-			"healing",
-			"shield",
-			"sword",
-		];
-		let currentImageIndex = 0;
-
-		// Determine the scale factor
-		let scaleFactor = 0.9;
-
-		// Create the cycling image button separately
-		let cyclingImageButton = this.add
-			.image(
-				hudPosition.x + (sectionWidth / 4) * 2.5,
-				hudPosition.y + hudHeight / 2,
-				cycleImages[currentImageIndex]
-			)
-			.setInteractive()
-			.setDepth(10000);
-		cyclingImageButton.setOrigin(0.5, 0.5); // Set the origin to the middle of the image
-		cyclingImageButton.setScale(scaleFactor, scaleFactor); // Use setScale() method
-		cyclingImageButton.setScrollFactor(0);
-
-		// Add the cycling image button to the array of buttons
-		buttons.push(cyclingImageButton);
-
-		// Cycle to the next image when the button is clicked
-		cyclingImageButton.on("pointerdown", () => {
-			currentImageIndex = (currentImageIndex + 1) % cycleImages.length; // Cycle index
-			cyclingImageButton.setTexture(cycleImages[currentImageIndex]); // Change image
-			cyclingImageButton.setOrigin(0.5, 0.5); // Set the origin to the middle of the new image
-			cyclingImageButton.setScale(scaleFactor, scaleFactor); // Apply the scale factor to the new image
-		});
-		// this.toggleHud()
+	
+		this.hud.toggleHud()
+		this.enemyHandler = new EnemyHandler(
+			this.objectHandler,
+			this.turnHandler,
+			this.tileSize,
+			this.map,
+			monsterObjects
+		  );
 	}
 
 	boxTrigger(inputFunction) {
 		inputFunction;
 	}
 
-	toggleHud() {
-		// If the HUD is currently visible, hide it
-		if (this.hudVisible)
-		{
-			this.tweens.add({
-				targets: [this.hud, this.hudText],
-				y: this.scale.height, // Move the HUD to below the bottom of the viewport
-				duration: 500, // 500ms transition duration
-				ease: "Power2",
-			});
-		}
-		// If the HUD is currently hidden, show it
-		else
-		{
-			this.tweens.add({
-				targets: [this.hud, this.hudText],
-				y: (this.scale.height * 2) / 3, // Move the HUD to the bottom third of the viewport
-				duration: 500, // 500ms transition duration
-				ease: "Power2",
-			});
-		}
 
-		// Toggle the HUD visibility
-		this.hudVisible = !this.hudVisible;
-	}
 
 	swapTiles(doorTiles) {
 		// Get the layer containing the tiles you want to swap
@@ -685,6 +918,7 @@ class startLevelOne extends Phaser.Scene {
 	}
 
 	spawnEnemies() {
+		
 		let tEnemy = "";
 		for (let index = 0; index < this.enemySpawnLocations.length; index++)
 		{
@@ -833,12 +1067,12 @@ class startLevelOne extends Phaser.Scene {
 			this.downTimer.remove();
 			this.downTimer = null;
 		}
-		let currentRoom = getRoomIndex("player", this);
-		if (!this.visitedRooms.includes(currentRoom))
+		this.currentRoom = getRoomIndex("player", this);
+		if (!this.visitedRooms.includes(this.currentRoom))
 		{
 			this.animatingIntoRoom = true;
 			console.log("[Animation] Enter Room started");
-			this.visitedRooms.push(currentRoom);
+			this.visitedRooms.push(this.currentRoom);
 			console.log(this.turnHandler.turns);
 			switch (this.prevDir)
 			{
@@ -877,7 +1111,7 @@ class startLevelOne extends Phaser.Scene {
 			}
 			this.time.delayedCall(300, () => {
 				this.turnHandler.addToTurns("player");
-				this.objectHandler.runForEnemiesInRoom(currentRoom, (key) => { this.turnHandler.addToTurns(key) } );
+				this.objectHandler.runForEnemiesInRoom(this.currentRoom, (key) => { this.turnHandler.addToTurns(key) } );
 				console.log("[Animation] Enter Room ended");
 				this.animatingIntoRoom = false;
 			});
@@ -952,17 +1186,15 @@ class startLevelOne extends Phaser.Scene {
 			}
 		} else {
 			if (!this.animatingIntoRoom) {
-				// ENEMY TURN LOGIC
-				this.turnHandler.consumeTurn();
+				this.enemyHandler.enemyMove(this.turnHandler.turns[0]);
+			  }
 			}
-		}
-	}
-
+		  }
 	updateText() {
 		this.text.setText(`Arrow keys to move. Space to interact.`);
 	}
 }
-
+//Game Config
 const config = {
 	type: Phaser.AUTO,
 	width: 1280,
@@ -977,7 +1209,7 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
-
+//Pre-game logic
 $(document).ready(function () {
 	var audio = document.getElementById("menu-music");
 	var muteButton = $("#mute");
@@ -1017,132 +1249,3 @@ $(document).ready(function () {
 		$(location).attr("href", "./game.html");
 	});
 });
-
-/// DND Fetch calls ///
-function createMonster(monsterCurrentData) {
-	// console.log(monsterCurrentData.hit_dice)
-	// console.log(monsterCurrentData.hit_points)
-	var monsterObject = {
-		name: monsterCurrentData.name,
-		hp: monsterCurrentData.hit_points,
-		dice: monsterCurrentData.actions[0].damage[0].damage_dice,
-	};
-	return monsterObject;
-	// console.log(monsterObject)
-}
-function createSpell(spellCurrentData) {
-	// console.log(monsterCurrentData.hit_points)
-	var spellObject = {
-		name: spellCurrentData.name,
-		desc: spellCurrentData.desc,
-		damage: spellCurrentData.damage,
-		range: spellCurrentData.range,
-		duration: spellCurrentData.duration,
-	};
-	return spellObject;
-}
-
-function createWeapon(weaponCurrentData) {
-	var weaponObject = {
-		name: weaponCurrentData.name,
-		damage: weaponCurrentData.damage,
-		range: weaponCurrentData.weapon_range,
-	};
-	return weaponObject;
-}
-
-var desiredSpells = ["Mage Armor", "Acid Splash"];
-var weaponData = [];
-var spellData = [];
-
-var desiredMonsters = ["orc", "skeleton", "goblin"];
-var monsterData = [];
-
-function fetchMonsterData(monsters) {
-	return (
-		Promise.all([
-			fetch("https://www.dnd5eapi.co/api/monsters/" + monsters[0]).then(
-				(response) => response.json()
-			),
-			fetch("https://www.dnd5eapi.co/api/monsters/" + monsters[1]).then(
-				(response) => response.json()
-			),
-			fetch("https://www.dnd5eapi.co/api/monsters/" + monsters[2]).then(
-				(response) => response.json()
-			),
-		])
-			.then((data) => {
-				monsterData = data;
-				console.log(monsterData);
-				return monsterData;
-			})
-			//   .then(monsterData => console.log(monsterData))
-			.catch((error) => console.error("Error:", error))
-	);
-}
-
-function fetchWeaponData() {
-	return Promise.all([
-		fetch("https://www.dnd5eapi.co/api/equipment/shortbow").then((response) =>
-			response.json()
-		),
-		fetch("https://www.dnd5eapi.co/api/equipment/longsword").then((response) =>
-			response.json()
-		),
-		fetch("https://www.dnd5eapi.co/api/equipment/shield").then((response) =>
-			response.json()
-		),
-	]).then((data) => {
-		weaponData = data;
-		return data;
-	});
-}
-function fetchSpellData() {
-	return Promise.all([
-		fetch("https://www.dnd5eapi.co/api/spells/mage-armor").then((response) =>
-			response.json()
-		),
-		fetch("https://www.dnd5eapi.co/api/spells/acid-splash").then((response) =>
-			response.json()
-		),
-		fetch("https://www.dnd5eapi.co/api/spells/detect-magic").then((response) =>
-			response.json()
-		),
-		fetch("https://www.dnd5eapi.co/api/spells/fire-bolt").then((response) =>
-			response.json()
-		),
-		fetch("https://www.dnd5eapi.co/api/spells/heal").then((response) =>
-			response.json()
-		),
-	]).then((data) => {
-		spellData = data; // Assign the resolved data to the existing spellData variable
-		return data;
-	});
-}
-// <<<<<<< feature/objectRequests
-var spellObjects = [];
-var weaponObjects = [];
-var monsterObjects = [];
-function getSortData() {
-	for (let index = 0; index < spellData.length; index++)
-	{
-		spellObjects.push(createSpell(spellData[index]));
-	}
-	console.log(spellObjects);
-	// =======
-
-	// function getSortData(){
-	//   var weaponData = fetchWeaponData()
-	//   var monsterData = fetchMonsterData()
-	//   var spellData = fetchSpellData()
-	//   console.log(weaponData)
-	// >>>>>>> main
-	//   for (let index = 0; index < weaponData.length; index++) {
-	//     weaponObjects.push(createWeapon(weaponData[index]))
-	//   }
-	//   console.log(weaponObjects)
-	//   for (let index = 0; index < monsterData.length; index++) {
-	//     monsterObjects.push(createMonster(monsterData[index]))
-	//   }
-	//   console.log(monsterObjects)
-}
