@@ -40,6 +40,13 @@ class EnemyHandler {
                 return (element != enemy)
             })
 			this.objectHandler.removeObject(enemy);
+			if (this.turnHandler.turns.length <= 1){
+				this.scene.turnHandler.currentAction = "none";
+				this.scene.turnHandler.currentTurnAction = "none"
+				this.scene.hud.toggleHud()
+				this.scene.turnHandler.turns = []
+				console.log("turns clearewd")
+			}
 		}
 	}
 

@@ -84,7 +84,7 @@ class PlayerHandler {
 	getRange(weapon) {
 		switch (weapon.range) {
 			case "Melee": return 2
-			case "Ranged": return 3
+			case "Ranged": return 5
 			default: return 0
 		}
 	}

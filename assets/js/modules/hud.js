@@ -400,6 +400,11 @@ class ProgressBar {
       });
     }
 
+    hideEnemyHealthBar(enemyIndex) {
+      if (enemyIndex >= 0 && enemyIndex < this.progressBars.length) {
+          this.progressBars[enemyIndex].hide();
+      }
+    }
     getTextArea() {
         return this.textArea;
     }
