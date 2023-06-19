@@ -1,26 +1,73 @@
 import { r1d4, r1d6, r1d8, r1d12, r1d20, r1d100 } from "../helper.js";
+import { GameObject } from "../game_objects.js";
+
+
 
 class EnemyHandler {
 	constructor(objectHandler, turnHandler, tileSize = 32, map, monsterObjects, scene) {
 		this.scene = scene;
+		this.monsterObjects = monsterObjects;
+		this.spawnEnemies()
 		this.objectHandler = objectHandler;
 		this.turnHandler = turnHandler;
 		this.tileSize = tileSize;
 		this.map = map;
-		this.monsterObjects = monsterObjects;
+	}
+
+	spawnEnemies() {
+		let tEnemy = "";
+		for (let index = 0; index < this.scene.enemySpawnLocations.length; index++) {
+		  for (let index1 = 0; index1 < this.scene.enemySpawnLocations[index].length; index1++) {
+			tEnemy = this.scene.enemies[Math.floor(Math.random() * this.scene.enemies.length)];
+			let xPos = this.scene.enemySpawnLocations[index][index1][0] * 48; // Multiply by the tile size
+			let yPos = this.scene.enemySpawnLocations[index][index1][1] * 52; // Multiply by the tile size
+			
+			new GameObject([xPos, yPos], tEnemy, tEnemy + index + index1, this.scene)
+			.setScale(2);
+		  }
+		}
+	}
+
+	setHealth(newHealth, enemy) {
+		let object = this.objectHandler.getObject(enemy);
+		newHealth = Math.max(0, Math.min(newHealth, parseInt(object.getData("maxHealth"))));
+		object.setData("health", newHealth);
+		console.log(newHealth)
+		this.scene.hud.setEnemiesInRoom()
+		if (newHealth <= 0) {
+			object.destroy();
+			this.turnHandler.turns = this.scene.turnHandler.turns.filter((element) => {
+                return (element != enemy)
+            })
+			this.objectHandler.removeObject(enemy);
+		}
+	}
+
+	checkEnemyForData(enemyName) {
+		const monsterName = enemyName.replace(/\d+$/, ""); // Remove numbers from enemyName
+		const monsterObject = this.monsterObjects.find(obj => obj.name === monsterName);
+		const enemy = this.scene.objectHandler.getObject(enemyName)
+		if (enemy.getData("health") == undefined) {
+			enemy.setData("health", monsterObject.hp)
+			enemy.setData("maxHealth", monsterObject.hp)
+			enemy.setData("range", monsterObject.range)
+			enemy.setData("damageRoll", monsterObject.dice)
+		}
 	}
   
 	enemyMove(enemyName) {
 		console.log("Enemy Move called for", enemyName);
-		const monsterName = enemyName.replace(/\d+$/, ""); // Remove numbers from enemyName
-		const monsterObject = this.monsterObjects.find(obj => obj.name === monsterName);
-		if (!monsterObject) {
-		  console.log(`Monster object not found for ${enemyName}`);
-		  return;
-		}
-		console.log("Monster Object for", enemyName, "is", monsterObject);
-	  
 		this.enemy = this.objectHandler.getObject(enemyName); // Assign this.enemy
+		const monsterName = enemyName.replace(/\d+$/, ""); // Remove numbers from enemyName
+		this.checkEnemyForData(enemyName)
+		const monsterObject = {
+			health: this.enemy.getData("health"),
+			maxHealth: this.enemy.getData("maxHealth"),
+			range: this.enemy.getData("range"),
+			damageRoll: this.enemy.getData("damageRoll"),
+		}
+		
+		console.log("Monster Object for", enemyName, "is", monsterObject);
 	  
 		const player = this.objectHandler.getObject("player");
 		const deltaX = player.x - this.enemy.x;
@@ -31,7 +78,7 @@ class EnemyHandler {
 		const distanceY = Math.abs(deltaY);
 	  
 		// Calculate the maximum allowed distance based on the enemy's range
-		const maxDistance = (monsterObject.range + 1) * this.tileSize;
+		const maxDistance = (parseInt(this.enemy.getData("range")) + 1) * this.tileSize;
 	  
 		// Check if the enemy is within the attack range
 		if (distanceX <= maxDistance && distanceY <= maxDistance) {
@@ -57,11 +104,12 @@ class EnemyHandler {
 		}
 	  
 		// If it's the enemy's turn and they should attack, call the attack method
-		if (this.turnHandler.currentTurn === enemyName && this.enemy.shouldAttack) {
+		console.log(this.turnHandler.currentTurn)
+		if (this.scene.turnHandler.currentTurn === enemyName && this.enemy.shouldAttack) {
 		  this.attack(enemyName);
 		}
 	  
-		this.turnHandler.consumeTurn();
+		this.scene.turnHandler.consumeTurn();
 	  }
 	  
 	getMonsterObject(enemyName) {
@@ -86,16 +134,11 @@ class EnemyHandler {
 		// Define the maximum distance for attack range
 		const maxDistance = 8 * this.tileSize; // Adjust the value as needed
 	
-		// Find the corresponding monster object
-		const monsterObject = this.monsterObjects.find(
-		  (obj) => obj.name === enemyName.replace(/\d+/g, "")
-		);
-	
 		// Check if the enemy is in attack range
 		if (distanceX <= maxDistance && distanceY <= maxDistance) {
 		  // Attack logic
 		  const damageRoll = () => {
-			const [dice, modifier] = monsterObject.dice.split("+");
+			const [dice, modifier] = this.enemy.getData("damageRoll").split("+");
 			const [numDice, diceType] = dice.split("d");
 
 			let damage = 0;

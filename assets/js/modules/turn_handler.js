@@ -9,7 +9,10 @@ class TurnHandler {
 	
 	consumeTurn() {
 		let currentTurn = this.turns.shift();
+		this.currentAction = "none";
+		this.currentTurnAction = "none"
 		this.addToTurns(currentTurn);
+		this.currentTurn = this.turns[0]
 		console.log(this.turns);
 	}
 

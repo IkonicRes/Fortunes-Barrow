@@ -1,3 +1,5 @@
+import { r1d8 } from "./helper.js";
+
 class ProgressBar {
     constructor(
       posX,
@@ -73,7 +75,12 @@ class ProgressBar {
         this.size.height
       );
     }
-  
+    
+    setDepth(depth) {
+      this.progress.setDepth(depth);
+      this.bg.setDepth(depth - 1)
+    }
+
     setVisible(bool) {
       this.progress.setVisible(bool);
       this.bg.setVisible(bool);
@@ -83,6 +90,7 @@ class ProgressBar {
   class Component {
     constructor(object, defaultHeight) {
       this.component = object;
+      this.component.setDepth(9999)
       this.origin = {};
       this.defaultHeight = defaultHeight;
     }
@@ -127,7 +135,7 @@ class ProgressBar {
   class HUD {
     constructor(scene) {
       this.scene = scene;
-      this.hudVisible = true; // Assuming the HUD is initially visible
+      this.hudVisible = false; // Assuming the HUD is initially visible
   
       // Create HUD components
       this.progressBars = [];
@@ -144,8 +152,10 @@ class ProgressBar {
             return (element != "player")
         })
         this.enemiesInRoom.forEach((enemy, index) => {
-            this.progressBars[index].component.setProgress(ProgressBar.valueToPercentage(0.5, 0, 1))
-            this.images[index].component.setTexture(this.scene.objectHandler.getObject(enemy).texture)
+            let obj = this.scene.objectHandler.getObject(enemy)
+            this.scene.enemyHandler.checkEnemyForData(enemy)
+            this.progressBars[index].component.setProgress(ProgressBar.valueToPercentage(parseInt(obj.getData("health")), 0, parseInt(obj.getData("maxHealth"))))
+            this.images[index].component.setTexture(obj.texture)
         })
     }
 
@@ -246,13 +256,13 @@ class ProgressBar {
         "runButtonImage",
       ];
       let buttonSpacing = sectionHeight / 3;
-      let buttonHeight = buttonSpacing * 0.8;
+      let buttonHeight = buttonSpacing * 2.5;
   
       this.buttons = buttonImages.map((img, i) => {
         let button = this.scene.add
           .image(
             hudPosition.x + sectionWidth * 0.875,
-            hudPosition.y + buttonSpacing  * (i* 2) + buttonSpacing / 1 ,
+            (hudPosition.y + 40) + buttonSpacing  * (i* 6) + buttonSpacing / 1 ,
             img
           )
           .setInteractive()
@@ -264,7 +274,7 @@ class ProgressBar {
       });
       
     // Define an array of image keys
-    this.imageKeys = ["sword", "shield", "healing", "bow"];
+    this.imageKeys = ["shield", "healing", "bow", "sword"];
     // Initialize an index to keep track of the current image
     this.imageIndex = 0;
 
@@ -273,15 +283,13 @@ class ProgressBar {
     // Use the initial image key when creating the cyclingImageButton
     this.cyclingImageButton = this.scene.add
         .image(
-            hudPosition.x + sectionWidth / 1.25 
-            + 100,
-            hudPosition.y + sectionHeight * 2 + sectionHeight / 1.5 + 50,
+          hudPosition.x + sectionWidth / 2 + 250,
+          hudPosition.y + sectionHeight * 2 + 50,
             this.imageKeys[this.imageIndex]
         )
         .setDepth(9999)
-        .setOrigin(0.5) // Set the origin directly using setOrigin()
         .setScrollFactor(0)
-        .setScale(0.5, 0.5)
+        .setScale(0.22, 0.22)
         .setCrop(0, 0, 1024, 1024);
 
     this.cyclingImageButton.setInteractive(); // Makes the image interactive so it can respond to pointer events
@@ -336,11 +344,30 @@ class ProgressBar {
                     console.log("No weapon found with the name " + weaponKey);
                 }
                 this.scene.playerHandler.attack(weaponKey);
+                break
             case "healing":
                 console.log("heal!")
-                spellKey = "";  // for example
+                console.log(this.scene.dndApiHandler.spellObjects)
+                spellKey = "Heal";  // for example
                 spellObject = this.scene.dndApiHandler.spellObjects.find(spell => spell.name === spellKey);
                 if (spellObject) {
+                    const damageRoll = () => {
+                      const [dice, modifier] = spellObject.damage.split("+");
+                      const [numDice, diceType] = dice.split("d");
+                
+                      let damage = 0;
+                
+                      for (let i = 0; i < numDice; i++) {
+                        damage += eval(`r1d${diceType}()`); // Evaluate the corresponding dice function
+                      }
+                
+                      if (modifier) {
+                        damage += parseInt(modifier);
+                      }
+                      return damage
+                      // Apply damage to the enemy
+                    };
+                    this.scene.playerHandler.setHealth(this.scene.playerHandler.health + damageRoll())
                     console.log(spellObject);  // Logs the found object to the console
                 } else {
                     console.log("No weapon found with the name " + spellKey);
@@ -361,6 +388,16 @@ class ProgressBar {
         this.cyclingImageButton,
         this.textArea
       );
+      this.scene.tweens.add({
+        targets: this.hudComponents.map((component) => {console.log("componentcomponent: ", component); return component}),
+        duration: 0,    
+        ease: "Power2",
+        onComplete: () => {
+          this.hudComponents.forEach((component) => {
+            component.setVisible(false);
+          });
+        },
+      });
     }
 
     getTextArea() {
@@ -369,10 +406,8 @@ class ProgressBar {
 
     toggleHud() {
       if (this.hudVisible) {
-        
         this.scene.tweens.add({
-          targets: this.hudComponents.map((component) => {console.log("componentcomponent: ", component); return component}),
-          y: this.scene.scale.height,
+          targets: this.hudComponents,
           duration: 500,    
           ease: "Power2",
           onComplete: () => {
@@ -383,14 +418,12 @@ class ProgressBar {
         });
       } else {
         this.scene.tweens.add({
-            targets: this.hudComponents.map((component) => {console.log("componentcomponent: ", component); return component}),
-            y: this.scene.scale.height,
+            targets: this.hudComponents,
             duration: 500,    
             ease: "Power2",
             onComplete: () => {
               this.hudComponents.forEach((component) => {
                 component.setVisible(true);
-                // component.reset()
               });
             },
           });

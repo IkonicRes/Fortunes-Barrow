@@ -19,6 +19,7 @@ class PlayerHandler {
 		this.isBlocking = false;
 		this.block = this.block.bind(this);
 		this.scoresExist = (localStorage.getItem('scores') !== null)
+		this.currentRoom = "room_2_2"
 	}
 
 	setHealth(newHealth) {
@@ -40,9 +41,9 @@ class PlayerHandler {
 			newHealth = Math.max(newHealth - mitigation, 0);
 			this.isBlocking = false; // Reset the block status
 		}
-		this.health = newHealth + (this.scene.eXperience / 50);
+		this.health = Math.max(0, Math.min(newHealth + (this.scene.eXperience / 50), this.maxHealth));
 		console.log(newHealth)
-		this.scene.hud.hudComponents[7].setProgress(
+		this.scene.hud.progressBars[3].setProgress(
 			ProgressBar.valueToPercentage(
 				newHealth,
 				0, this.scene.playerHandler.maxHealth
@@ -51,42 +52,48 @@ class PlayerHandler {
 		this.scene.eXperience = (this.scene.eXperience + r1d8())
 		console.log("Experience: ", this.scene.eXperience)
 		if (newHealth <= 0) {
-			let tName = "FunkyAnon"
-			console.log(this.scene.eXperience)
-			let tScore = (tName + "%" + this.scene.eXperience)
-        	let tScores = []
-			//Check if the scores exist in localstorage, and if so, parse the data, append the new score, and restringify the data to be updated in local storage
-			if (this.scoresExist){
-				JSON.parse(localStorage.getItem("allEntries"))
-				tScores = JSON.parse(localStorage.getItem("scores"))
-				tScores.push(tScore)
-				localStorage.setItem("scores", JSON.stringify(tScores))
-        	}
-        //Otherwise, push the score to the empty array and stringify/set in local storage
-			else{
-				tScores.push(tScore)
-				localStorage.setItem("scores", JSON.stringify(tScores))
-			}
-			$(location).attr("href", "./death.html");
+			this.endGame()
 		}
 	}
-	
+
+	endGame() {
+		let tName = "FunkyAnon"
+		console.log(this.scene.eXperience)
+		let tScore = (tName + "%" + this.scene.eXperience)
+		let tScores = []
+		//Check if the scores exist in localstorage, and if so, parse the data, append the new score, and restringify the data to be updated in local storage
+		if (this.scoresExist){
+			JSON.parse(localStorage.getItem("allEntries"))
+			tScores = JSON.parse(localStorage.getItem("scores"))
+			tScores.push(tScore)
+			localStorage.setItem("scores", JSON.stringify(tScores))
+		}
+	//Otherwise, push the score to the empty array and stringify/set in local storage
+		else{
+			tScores.push(tScore)
+			localStorage.setItem("scores", JSON.stringify(tScores))
+		}
+		$(location).attr("href", "./death.html");
+	}
+
 	block() {
 		this.isBlocking = true;
 		console.log(`${this.player.name} is preparing to block the next attack.`);
 	}
 
-	getCollisionForMovement(dir) {
-		return this.scene.getCollision(dir,
-			this.scene.objectHandler.getObject("player").x - this.tileSize,
-			this.scene.objectHandler.getObject("player").y
-		);
+	getRange(weapon) {
+		switch (weapon.range) {
+			case "Melee": return 2
+			case "Ranged": return 3
+			default: return 0
+		}
 	}
+
+	getCollisionForMovement(dir) { return this.scene.getCollision(dir, this.scene.objectHandler.getObject("player").x - this.tileSize, this.scene.objectHandler.getObject("player").y); }
 
 	attack(weaponKey) {
 		const player = this.scene.objectHandler.getObject("player");
 		const weaponObjects = this.scene.dndApiHandler.weaponObjects;
-		console.log(weaponKey);
 		const weapon = weaponObjects.find(weapon => weapon.name === weaponKey);
 		console.log("weapon is: ", weapon)
 		if (weaponKey === "shield") {
@@ -96,26 +103,26 @@ class PlayerHandler {
 		}
 	
 		// Get all enemies
-		const enemies = this.scene.objectHandler.getAllEnemies();
-	
+		const enemies = this.scene.objectHandler.getEnemiesInRoom(getRoomIndex("player", this.scene));
 		// Calculate distances to all enemies
 		const enemyDistances = enemies.map(enemy => {
-			const distanceX = Math.abs(player.x - enemy.x) / this.tileSize;
-			const distanceY = Math.abs(player.y - enemy.y) / this.tileSize;
+			let enemyObj = this.scene.objectHandler.getObject(enemy)
+			const distanceX = Math.abs(player.x - enemyObj.x) / this.scene.gridSize;
+			const distanceY = Math.abs(player.y - enemyObj.y) / this.scene.gridSize;
 			return {
-				enemy,
+				enemyObj: enemyObj,
+				name: enemy,
 				distance: Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2)) // Pythagorean theorem
 			};
 		});
-	
 		// Find closest enemy
 		const closestEnemy = enemyDistances.sort((a, b) => a.distance - b.distance)[0];
 	
 		// Check if the closest enemy is within the weapon's range
-		if (closestEnemy.distance <= weapon.range) {
+		if (closestEnemy.distance <= this.getRange(weapon) + 1) {
 			// Attack logic
 			const damageRoll = () => {
-				const [dice, modifier] = weapon.damage.split("+");
+				const [dice, modifier] = weapon.damage.damage_dice.split("+");
 				const [numDice, diceType] = dice.split("d");
 	
 				let damage = 0;
@@ -129,12 +136,13 @@ class PlayerHandler {
 				}
 	
 				// Apply damage to the enemy
-				closestEnemy.enemy.health -= damage;
-				console.log(`${player.name} attacks ${closestEnemy.enemy.name} for ${damage} damage using ${weaponKey}.`);
+				console.log(closestEnemy)
+				this.scene.enemyHandler.setHealth(parseInt(closestEnemy.enemyObj.getData("health")) - damage, closestEnemy.name)
+				console.log(`${player.name} attacks ${closestEnemy.enemyObj} for ${damage} damage using ${weaponKey}.`);
 			};
 			damageRoll();
 		} else {
-			console.log(`${closestEnemy.enemy.name} is not in attack range.`);
+			console.log(`${closestEnemy.enemyObj} is not in attack range.`);
 		}
 	}
 	
@@ -155,7 +163,6 @@ class PlayerHandler {
 			console.log(maxDistance)
 			// Check if the enemy is within the attack range
 			if (distanceX <= maxDistance && distanceY <= maxDistance) {
-				let roomIndex = getRoomIndex("player", this.scene)
 				console.log(`Infront of door`);
 				if (deltaX != 0) {
 					if (deltaX < 0) { this.moveLeft(); }
@@ -165,9 +172,10 @@ class PlayerHandler {
 					if (deltaY > 0) { this.moveUp(); }
 					else { this.moveDown(); }	
 				}
-				this.scene.turnHandler.turns = []
+				this.scene.turnHandler.currentAction = "none";
+				this.scene.turnHandler.currentTurnAction = "none"
 				this.scene.hud.toggleHud()
-				this.scene.visitedRooms = this.scene.visitedRooms.filter(function(e) { return e !== roomIndex })
+				this.scene.turnHandler.turns = []
 				console.log("turns clearewd")
 				
 				// HERE IS WHERE TURN BASED COMBAT ENDS AFTER RUNNING 
@@ -203,24 +211,22 @@ class PlayerHandler {
 
 	moveLeft = () => {
 		this.prevDir = "left";
-		const player = this.scene.objectHandler.getObject("player");
+    	this.scene.objectHandler.getObject("player").anims.play('left', true);
     	// Only move the player if the target tile is not a wall
-    	player.anims.play('left', true);
 		if (this.scene.nonCollideIDs.includes(this.getCollisionForMovement("left"))) { 
 			this.scene.objectHandler.getObject("player").x -= this.movement.speed;
-			this.leftTimer = this.scene.time.delayedCall(this.movement.movementDelay, this.moveLeft);
+			this.leftTimer = this.scene.time.delayedCall(this.movement.movementDelay);
 		} 
 		else { console.log("Nuttin' doin'"); }
 	}
 
 	moveRight = () => {
 		this.prevDir = "right";
-		const player = this.scene.objectHandler.getObject("player");
+		this.scene.objectHandler.getObject("player").anims.play('right', true);
 		// Only move the player if the target tile is not a wall
-		player.anims.play('right', true);
 		if (this.scene.nonCollideIDs.includes(this.getCollisionForMovement("right"))) { 
 			this.scene.objectHandler.getObject("player").x += this.movement.speed;
-			this.rightTimer = this.scene.time.delayedCall(this.movement.movementDelay, this.moveRight);
+			this.rightTimer = this.scene.time.delayedCall(this.movement.movementDelay);
 		} 
 		else { console.log("Nuttin' doin'"); }
 	}
@@ -232,7 +238,7 @@ class PlayerHandler {
 		player.anims.play('up', true);
 		if (this.scene.nonCollideIDs.includes(this.getCollisionForMovement("up"))) { 
 			this.scene.objectHandler.getObject("player").y -= this.movement.speed;
-			this.upTimer = this.scene.time.delayedCall(this.movement.movementDelay, this.attemptMoveUp);
+			this.upTimer = this.scene.time.delayedCall(this.movement.movementDelay);
 		} 
 		else { console.log("Nuttin' doin'"); }
 	}
@@ -244,7 +250,7 @@ class PlayerHandler {
 		player.anims.play('down', true);
 		if (this.scene.nonCollideIDs.includes(this.getCollisionForMovement("down"))) { 
 			this.scene.objectHandler.getObject("player").y += this.movement.speed;
-			this.downTimer = this.scene.time.delayedCall(this.movement.movementDelay, this.moveDown);
+			this.downTimer = this.scene.time.delayedCall(this.movement.movementDelay);
 		} 
 		else { console.log("Nuttin' doin'"); }
 	}

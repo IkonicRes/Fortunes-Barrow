@@ -45,6 +45,7 @@ class ObjectHandler {
 	runForEnemiesInRoom(roomIndex, callback=(key) => {}) {
 		Object.keys(this.objects).forEach((key) => {
 			if (getRoomIndex(key, this.scene) == roomIndex) {
+				console.log(key)
 				if (["goblin", "skeleton", "orc"].includes(this.objects[key].texture.key)) {
 					callback(key)
 				}
@@ -69,10 +70,12 @@ class ObjectHandler {
 
 class GameObject {
 	constructor(pos, sprite, name, scene) {
+		this.object = scene.physics.add.sprite(pos[0], pos[1], sprite)
 		scene.objectHandler.addObject(
-			scene.physics.add.sprite(pos[0], pos[1], sprite),
+			this.object,
 			name
 		);
+		return this.object;
 	}
 }
 

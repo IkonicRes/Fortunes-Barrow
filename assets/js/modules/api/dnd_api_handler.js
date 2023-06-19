@@ -15,7 +15,6 @@ class DNDApiHandler {
 			goblin: 1,
 			skeleton: 3
 		}
-		this.populateData();
 	}
 	// USED TO BE CALLED getSortData()
 	async populateData() {
