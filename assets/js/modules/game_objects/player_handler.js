@@ -54,9 +54,9 @@ class PlayerHandler {
 			let tName = "FunkyAnon"
 			console.log(this.scene.eXperience)
 			let tScore = (tName + "%" + this.scene.eXperience)
-        	tScores = []
+        	let tScores = []
 			//Check if the scores exist in localstorage, and if so, parse the data, append the new score, and restringify the data to be updated in local storage
-			if (scoresExist){
+			if (this.scoresExist){
 				JSON.parse(localStorage.getItem("allEntries"))
 				tScores = JSON.parse(localStorage.getItem("scores"))
 				tScores.push(tScore)

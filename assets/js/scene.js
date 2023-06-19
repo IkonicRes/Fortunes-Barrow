@@ -48,6 +48,7 @@ class startLevelOne extends Phaser.Scene {
     riddler;
     sortedRiddle;
     bHasKey;
+    zoomLevel;
 
 	preload() {
 		this.objectHandler = new ObjectHandler(this);
@@ -308,7 +309,6 @@ class startLevelOne extends Phaser.Scene {
         // Create a texture with 32x32 px frames
 
 
-
         this.cameras.main.startFollow(player);
         player.anims.play('up');
 		this.debugGraphics = this.add.graphics();
@@ -324,7 +324,7 @@ class startLevelOne extends Phaser.Scene {
 		this.text.setScrollFactor(0);
 		this.updateText();
 		this.visitedRooms = ["room_2_2"];
-		// this.spawnEnemies();
+		this.spawnEnemies();
 		this.hud = new HUD(this);
         this.hud.create();
 		// Create the HUD as a rectangle covering the bottom third of the viewport
@@ -347,7 +347,6 @@ class startLevelOne extends Phaser.Scene {
 	swapTiles(doorTiles) {
 		// Get the layer containing the tiles you want to swap
 		let layer = this.map.getLayer("Collision").tilemapLayer;
-		console.log(doorTiles);
 		for (let doorTile of doorTiles)
 		{
 			// Calculate tile's coordinates on the grid
@@ -377,10 +376,8 @@ class startLevelOne extends Phaser.Scene {
     checkInteract() {
         let doorTiles = []; // Initialize doorTiles here
         let intObj = this.getCollision(this.playerHandler.prevDir);
-        console.log(intObj);
         if ( Object.keys(this.doorHandler.doorTileTypes).includes(intObj.toString()) )
         {
-            console.log("Door!");
             let playerTargetCoords = this.getCollisionCoordinates(this.playerHandler.prevDir);
             let playerSize = 16 * 3;
             let doorLocation = {
@@ -389,8 +386,6 @@ class startLevelOne extends Phaser.Scene {
             };
             this.playerHandler.lastDoorLocation = doorLocation;
             doorTiles = this.doorHandler.getAdjacentDoors(doorLocation.x, doorLocation.y);
-
-            console.log(doorTiles);
         } else if ([0, 1, null, undefined].indexOf(intObj) >= 0)
         {
             console.log("other object!");
@@ -401,7 +396,6 @@ class startLevelOne extends Phaser.Scene {
             console.log('Locked door detected');
             if (this.bHasKey) {
                 console.log('Key found, swapping tiles');
-                console.log("doortiles are: ", doorTiles)
                 // Swap door tiles
                 this.swapTiles(doorTiles);
             } else {
@@ -449,31 +443,29 @@ class startLevelOne extends Phaser.Scene {
 		return targetCoords;
 	}
 
-	// spawnEnemies() {
+	spawnEnemies() {
 		
-	// 	let tEnemy = "";
-	// 	for (let index = 0; index < this.enemySpawnLocations.length; index++)
-	// 	{
-	// 		for (
-	// 			let index1 = 0;
-	// 			index1 < this.enemySpawnLocations[index].length;
-	// 			index1++
-	// 		)
-	// 		{
-	// 			tEnemy = this.enemies[Math.floor(Math.random() * this.enemies.length)];
-	// 			console.log(tEnemy);
-	// 			let xPos = this.enemySpawnLocations[index][index1][0] * 48; // Multiply by the tile size
-	// 			let yPos = this.enemySpawnLocations[index][index1][1] * 52; // Multiply by the tile size
-	// 			new GameObject([xPos, yPos], tEnemy, tEnemy + index + index1, this);
-	// 			this.objectHandler.getObject(tEnemy + index + index1).setScale(2);
-	// 		}
-	// 	}
-	// }
+		let tEnemy = "";
+		for (let index = 0; index < this.enemySpawnLocations.length; index++)
+		{
+			for (
+				let index1 = 0;
+				index1 < this.enemySpawnLocations[index].length;
+				index1++
+			)
+			{
+				tEnemy = this.enemies[Math.floor(Math.random() * this.enemies.length)];
+				let xPos = this.enemySpawnLocations[index][index1][0] * 48; // Multiply by the tile size
+				let yPos = this.enemySpawnLocations[index][index1][1] * 52; // Multiply by the tile size
+				new GameObject([xPos, yPos], tEnemy, tEnemy + index + index1, this);
+				this.objectHandler.getObject(tEnemy + index + index1).setScale(2);
+			}
+		}
+	}
 
 	getCollision(targetDirection) {
 		let targetCoords = this.getCollisionCoordinates(targetDirection);
 		let index = this.map.layers[1].data[targetCoords[1]][targetCoords[0]].index;
-		console.log(index);
 		return index;
 	}
 
@@ -526,7 +518,6 @@ class startLevelOne extends Phaser.Scene {
 
             // this.hud.toggleHud()
 			this.visitedRooms.push(this.currentRoom);
-			console.log(this.turnHandler.turns);
 			switch (this.playerHandler.prevDir)
 			{
 				case "left": {
@@ -567,16 +558,17 @@ class startLevelOne extends Phaser.Scene {
 				}
 			}
 			this.time.delayedCall(500, () => {
-				// this.turnHandler.addToTurns("player");
-				// this.objectHandler.runForEnemiesInRoom(this.currentRoom, (key) => { this.turnHandler.addToTurns(key) } );
+                this.objectHandler.runForEnemiesInRoom(this.currentRoom, (key) => { this.turnHandler.addToTurns(key); } );
+				this.turnHandler.addToNextTurn("player");
 				console.log("[Animation] Enter Room ended");
-				this.animatingIntoRoom = false;
+                //this.hud.setEnemiesInRoom();
                 if (this.currentRoom == "room_0_3" && !this.bRiddling){
                     console.log("A Quiz!")
                     this.bRiddling = true;
                     this.hud.getTextArea().setText(this.sortedRiddle.riddle.riddle)
                     this.bHasKey = true;
                 }
+                this.animatingIntoRoom = false;
                 // this.hud.toggleHud() 
 			})
 		}
@@ -631,12 +623,8 @@ class startLevelOne extends Phaser.Scene {
         }
 	}
 
-	playerPassTurn() {
-		this.turnHandler.consumeTurn()
-	}
-
 	update(time, delta) {
-		if (this.turnHandler.currentTurn == "player")
+		if (this.turnHandler.turns[0] == "player" || this.turnHandler.turns.length == 0)
 		{
 			if (!this.animatingIntoRoom)
 			{
@@ -647,7 +635,7 @@ class startLevelOne extends Phaser.Scene {
 				else if (this.turnHandler.currentAction != "none") {
 					switch (this.turnHandler.currentAction) {
 						case "action": this.playerAction();
-						case "pass": this.playerPassTurn();
+						case "pass": this.turnHandler.consumeTurn();
 						case "run": this.playerRun();
 					}
 				} else {
@@ -657,16 +645,19 @@ class startLevelOne extends Phaser.Scene {
 					if (this.playerHandler.rightTimer != null) { this.playerHandler.rightTimer.remove(); this.playerHandler.rightTimer = null }
 				}
 			}
-            // if (this.cursors.left.isUp && this.cursors.right.isUp && this.cursors.up.isUp && this.cursors.down.isUp) {
-            //     if (this.playerHandler.anims.currentAnim) {
-            //         const currentKey = this.player.anims.currentAnim.key;
-            //         const direction = currentKey.split('-')[1]; // Get the direction from the key of the current animation
-            //         this.playerHandler.anims.play('stop-' + direction, true);
-            //     }
-            // }
+            if (this.cursors.left.isUp && this.cursors.right.isUp && this.cursors.up.isUp && this.cursors.down.isUp) {
+                if (this.anims.currentAnim) {
+                    const currentKey = this.anims.currentAnim.key;
+                    const direction = currentKey.split('-')[1]; // Get the direction from the key of the current animation
+                    this.anims.play('stop-' + direction, true);
+                }
+            }
 		} else {
+            this.hud.setEnemiesInRoom();
 			if (!this.animatingIntoRoom) {
 				this.enemyHandler.enemyMove(this.turnHandler.turns[0]);
+                setTimeout(() => { this.scene.resume() }, 2000)
+                this.scene.pause()
             }
         }	
         this.hud.hudComponents[8].setProgress(

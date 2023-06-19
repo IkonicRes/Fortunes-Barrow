@@ -19,29 +19,43 @@ class ProgressBar {
         width: width,
         height: height,
       };
+      this.border = {
+        x: borderX, y: borderY
+      }
       this.targetProgress = 0;
       this.currentProgress = 0;
       this.color = color;
       this.bg = this.scene.add.graphics();
-      this.bg.setScrollFactor(0);
-      this.bg.fillStyle(bgColor, 1);
-      this.bg.fillRect(
-        this.pos.x - borderX,
-        this.pos.y - borderY,
-        this.size.width + borderX * 2,
-        this.size.height + borderY * 2
-      );
+      this.bgColor = bgColor
       this.progress = this.scene.add.graphics();
-      this.progress.setScrollFactor(0);
-      this.progress.fillStyle(color, 0.7);
-      this.progress.fillRect(
-        this.pos.x,
-        this.pos.y,
-        0,
-        this.size.height
-      );
+      this.progress.setInteractive();
+      this.updateProgressBar();
+      this.scene.input.on('gameobjectdown', (pointer, gameObject) => {
+        
+      })
       this.setProgress(100);
     }
+
+    updateProgressBar() {
+        this.bg.setScrollFactor(0);
+        this.bg.fillStyle(this.bgColor, 1);
+        this.bg.fillRect(
+            this.pos.x - this.border.x,
+            this.pos.y - this.border.y,
+            this.size.width + this.border.x * 2,
+            this.size.height + this.border.y * 2
+        );
+        this.progress.setScrollFactor(0);
+        this.progress.fillStyle(this.color, 0.7);
+        this.progress.fillRect(
+          this.pos.x,
+          this.pos.y,
+          0,
+          this.size.height
+        );
+    }
+
+
   
     static valueToPercentage(value, min, max) {
       return ((value - min) * 100) / (max - min);
@@ -84,9 +98,11 @@ class ProgressBar {
     setVisible(bool) {
       this.component.setVisible(bool);
     }
+
     setProgress(progress){
       this.component.setProgress(progress)
     }
+
     setInteractive() {
       this.component.setInteractive();
     }
@@ -120,11 +136,22 @@ class ProgressBar {
       this.buttons = [];
       this.cyclingImageButton;
       this.hudComponents = [];
+      this.enemiesInRoom = []
     }
   
+    setEnemiesInRoom() {
+        this.enemiesInRoom = this.scene.turnHandler.turns.filter((element) => {
+            return (element != "player")
+        })
+        this.enemiesInRoom.forEach((enemy, index) => {
+            this.progressBars[index].component.setProgress(ProgressBar.valueToPercentage(0.5, 0, 1))
+            this.images[index].component.setTexture(this.scene.objectHandler.getObject(enemy).texture)
+        })
+    }
+
     create() {
       let scale = this.scene.scale;
-      let hudPosition = { x: 0, y: (scale.height * 2) / 3 };
+      let hudPosition = { x: 0 + 10, y: (scale.height * 2) / 3 };
       let hudHeight = scale.height / 4;
       let sectionHeight = hudHeight / 5;
       let progressBarDimensions = { width: 200, height: 20 };
@@ -157,7 +184,7 @@ class ProgressBar {
         let bar;
         if (i < 4) {
           bar = new ProgressBar(
-            hudPosition.x,
+            hudPosition.x ,
             hudPosition.y + sectionHeight * i + progressBarDimensions.height / 0.5,
             progressBarDimensions.width,
             progressBarDimensions.height,
@@ -225,14 +252,14 @@ class ProgressBar {
         let button = this.scene.add
           .image(
             hudPosition.x + sectionWidth * 0.875,
-            hudPosition.y + buttonSpacing * i + buttonSpacing / 1,
+            hudPosition.y + buttonSpacing  * (i* 2) + buttonSpacing / 1 ,
             img
           )
           .setInteractive()
-          .setDepth(9999)
+        .setDepth(9999)
           .setOrigin(0.5) // Set the origin directly using setOrigin()
-          .setDisplaySize(sectionWidth / 6, buttonHeight)
-          .setScrollFactor(0);
+          .setDisplaySize(sectionWidth / 6, buttonHeight *2)
+          .setScrollFactor(0)
         return new Component(button);
       });
       
@@ -246,13 +273,16 @@ class ProgressBar {
     // Use the initial image key when creating the cyclingImageButton
     this.cyclingImageButton = this.scene.add
         .image(
-            hudPosition.x + sectionWidth / 1.25,
-            hudPosition.y + sectionHeight * 2 + sectionHeight / 1.5,
+            hudPosition.x + sectionWidth / 1.25 
+            + 100,
+            hudPosition.y + sectionHeight * 2 + sectionHeight / 1.5 + 50,
             this.imageKeys[this.imageIndex]
         )
         .setDepth(9999)
         .setOrigin(0.5) // Set the origin directly using setOrigin()
-        .setScrollFactor(0);
+        .setScrollFactor(0)
+        .setScale(0.5, 0.5)
+        .setCrop(0, 0, 1024, 1024);
 
     this.cyclingImageButton.setInteractive(); // Makes the image interactive so it can respond to pointer events
 
@@ -262,13 +292,8 @@ class ProgressBar {
 
     // Update the image index, loop back to 0 if we've gone past the end of the array
     this.imageIndex = (this.imageIndex + 1) % this.imageKeys.length;
-
-
     
-    // ...
-    
-    
-    
+    });
     this.buttons[0].on("pointerdown", () => {
         console.log("Wobjects: ", this.scene.dndApiHandler)
         let weaponKey;
@@ -288,7 +313,6 @@ class ProgressBar {
                     console.log("No weapon found with the name " + weaponKey);
                 }
                 this.scene.playerHandler.attack(weaponKey);
-                this.scene.turnHandler.consumeTurn()
                 
                 break;
             case "shield":
@@ -301,7 +325,6 @@ class ProgressBar {
                     console.log("No weapon found with the name " + weaponKey);
                 }
                 this.scene.playerHandler.block(weaponObject); // Pass the weaponObject to the block method
-                this.scene.turnHandler.consumeTurn()
                 break
             case "bow":
                 console.log("bow shot!")
@@ -313,7 +336,6 @@ class ProgressBar {
                     console.log("No weapon found with the name " + weaponKey);
                 }
                 this.scene.playerHandler.attack(weaponKey);
-                this.scene.turnHandler.consumeTurn()
             case "healing":
                 console.log("heal!")
                 spellKey = "";  // for example
@@ -323,21 +345,14 @@ class ProgressBar {
                 } else {
                     console.log("No weapon found with the name " + spellKey);
                 }
-                this.scene.turnHandler.consumeTurn()
                 break;
         }
+        this.scene.turnHandler.consumeTurn()
     });
     
-    this.buttons[1].on("pointerdown", () => {
-        this.scene.playerPassTurn();
-      });
-      this.buttons[2].on("pointerdown", () => {
-          this.scene.playerRun();
-        });
+        this.buttons[1].on("pointerdown", () => { this.scene.turnHandler.currentAction = "pass"; this.scene.turnHandler.consumeTurn(); });
+        this.buttons[2].on("pointerdown", () => { this.scene.turnHandler.currentAction = "run"; });
         
-        
-        
-    });
       this.hudComponents.push(
         this.hud,
         ...this.images,
