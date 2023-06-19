@@ -6,6 +6,8 @@ import { HUD } from "./modules/hud.js";
 import { PlayerHandler } from "./modules/game_objects/player_handler.js";
 import { EnemyHandler } from "./modules/game_objects/enemy_handler.js";
 import { DNDApiHandler } from "./modules/api/dnd_api_handler.js";
+import { ProgressBar } from "./modules/hud.js";
+import { Riddler } from './questions.js';
 
 //Level One
 class startLevelOne extends Phaser.Scene {
@@ -40,6 +42,12 @@ class startLevelOne extends Phaser.Scene {
 	gridSize = 48;
 	currentRoom;
     playerTileset;
+    eXperience;
+    PLAYER_FRAME_RATE;
+    bRiddling;
+    riddler;
+    sortedRiddle;
+    bHasKey;
 
 	preload() {
 		this.objectHandler = new ObjectHandler(this);
@@ -51,7 +59,9 @@ class startLevelOne extends Phaser.Scene {
 		const tilemapPath = getAssetUrl("/assets/images/tileset/dungeonTiles/fantasyDungeonTilesetTransparent.png");
 		this.load.tilemapTiledJSON("map", getAssetUrl("/assets/images/tileset/levels/L_01/L_1.json"));
 		this.load.spritesheet("fantasyDungeonTilesetTransparent", tilemapPath, { frameWidth: 16, frameHeight: 16 });
-        this.load.atlas('playerAtlas', 'assets/images/characters/playerAtlas.png', 'assets/images/characters/playerAtlas.json');
+        this.load.spritesheet('playerAtlas', 'assets/images/characters/playerAtlas.png', { frameWidth: 32, frameHeight: 32 });
+        this.PLAYER_FRAME_RATE = 10;
+        this.riddler = new Riddler()
 		this.load.spritesheet("orc",
 			getAssetUrl("/assets/images/characters/T_orc.png"),
 			{ frameWidth: 16, frameHeight: 16 }
@@ -175,12 +185,14 @@ class startLevelOne extends Phaser.Scene {
 			],
 		];
 		this.bInput = true;
+        this.eXperience = 0;
+        this.bHasKey = false;
 	}
 
 	create() {
 		var scale = 3;
 		var playerScale = 2;
-
+        this.sortedRiddle = this.getRiddle()
 		this.map = this.add.tilemap("map");
 		this.doorHandler = new DoorHandler(this);
 		this.turnHandler = new TurnHandler();
@@ -197,86 +209,86 @@ class startLevelOne extends Phaser.Scene {
 		const player = this.objectHandler.getObject("player")
 		player.setScale(playerScale);
 		this.playerHandler = new PlayerHandler(player, this)
-		// this.anims.create({
-        //     key: 'left',
-        //     frames: [
-        //         { key: 'playerAtlas', frame: 165 },
-        //         { key: 'playerAtlas', frame: 166 },
-        //         { key: 'playerAtlas', frame: 167 },
-        //         { key: 'playerAtlas', frame: 168 },
-        //         { key: 'playerAtlas', frame: 169 },
-        //         { key: 'playerAtlas', frame: 170 },
-        //         { key: 'playerAtlas', frame: 171 },
-        //         { key: 'playerAtlas', frame: 172 }
-        //     ],
-        //     frameRate: 10,
-        //     repeat: -1
-        // });
+		this.anims.create({
+            key: 'left',
+            frames: [
+                { key: 'playerAtlas', frame: 165 },
+                { key: 'playerAtlas', frame: 166 },
+                { key: 'playerAtlas', frame: 167 },
+                { key: 'playerAtlas', frame: 168 },
+                { key: 'playerAtlas', frame: 169 },
+                { key: 'playerAtlas', frame: 170 },
+                { key: 'playerAtlas', frame: 171 },
+                { key: 'playerAtlas', frame: 172 }
+            ],
+            frameRate: this.PLAYER_FRAME_RATE,
+            repeat: 0
+        });
         
-        // this.anims.create({
-        //     key: 'right',
-        //     frames: [
-        //         { key: 'playerAtlas', frame: 229 },
-        //         { key: 'playerAtlas', frame: 230 },
-        //         { key: 'playerAtlas', frame: 231 },
-        //         { key: 'playerAtlas', frame: 232 },
-        //         { key: 'playerAtlas', frame: 233 },
-        //         { key: 'playerAtlas', frame: 234 },
-        //         { key: 'playerAtlas', frame: 235 },
-        //         { key: 'playerAtlas', frame: 236 }
-        //     ],
-        //     frameRate: 10,
-        //     repeat: -1
-        // });
+        this.anims.create({
+            key: 'right',
+            frames: [
+                { key: 'playerAtlas', frame: 229 },
+                { key: 'playerAtlas', frame: 230 },
+                { key: 'playerAtlas', frame: 231 },
+                { key: 'playerAtlas', frame: 232 },
+                { key: 'playerAtlas', frame: 233 },
+                { key: 'playerAtlas', frame: 234 },
+                { key: 'playerAtlas', frame: 235 },
+                { key: 'playerAtlas', frame: 236 }
+            ],
+            frameRate: this.PLAYER_FRAME_RATE,
+            repeat: 0
+        });
         
-        // this.anims.create({
-        //     key: 'up',
-        //     frames: [
-        //         { key: 'playerAtlas', frame: 133 },
-        //         { key: 'playerAtlas', frame: 134 },
-        //         { key: 'playerAtlas', frame: 135 },
-        //         { key: 'playerAtlas', frame: 136 },
-        //         { key: 'playerAtlas', frame: 137 },
-        //         { key: 'playerAtlas', frame: 138 },
-        //         { key: 'playerAtlas', frame: 139 },
-        //         { key: 'playerAtlas', frame: 140 }
-        //     ],
-        //     frameRate: 10,
-        //     repeat: -1
-        // });
+        this.anims.create({
+            key: 'up',
+            frames: [
+                { key: 'playerAtlas', frame: 133 },
+                { key: 'playerAtlas', frame: 134 },
+                { key: 'playerAtlas', frame: 135 },
+                { key: 'playerAtlas', frame: 136 },
+                { key: 'playerAtlas', frame: 137 },
+                { key: 'playerAtlas', frame: 138 },
+                { key: 'playerAtlas', frame: 139 },
+                { key: 'playerAtlas', frame: 140 }
+            ],
+            frameRate: this.PLAYER_FRAME_RATE,
+            repeat: 0
+        });
         
-        // this.anims.create({
-        //     key: 'left',
-        //     frames: [
-        //         { key: 'playerAtlas', frame: 197 },
-        //         { key: 'playerAtlas', frame: 198 },
-        //         { key: 'playerAtlas', frame: 199 },
-        //         { key: 'playerAtlas', frame: 200 },
-        //         { key: 'playerAtlas', frame: 201 },
-        //         { key: 'playerAtlas', frame: 202 },
-        //         { key: 'playerAtlas', frame: 203 },
-        //         { key: 'playerAtlas', frame: 204 }
-        //     ],
-        //     frameRate: 10,
-        //     repeat: -1
-        // });
+        this.anims.create({
+            key: 'down',
+            frames: [
+                { key: 'playerAtlas', frame: 197 },
+                { key: 'playerAtlas', frame: 198 },
+                { key: 'playerAtlas', frame: 199 },
+                { key: 'playerAtlas', frame: 200 },
+                { key: 'playerAtlas', frame: 201 },
+                { key: 'playerAtlas', frame: 202 },
+                { key: 'playerAtlas', frame: 203 },
+                { key: 'playerAtlas', frame: 204 }
+            ],
+            frameRate: this.PLAYER_FRAME_RATE,
+            repeat: 0
+        });
         
-        // this.anims.create({
-        //     key: 'stop-left',
-        //     frames: [{ key: 'playerAtlas', frame: 172 }],
-        // });
-        // this.anims.create({
-        //     key: 'stop-right',
-        //     frames: [{ key: 'playerAtlas', frame: 236 }],
-        // });
-        // this.anims.create({
-        //     key: 'stop-up',
-        //     frames: [{ key: 'playerAtlas', frame: 140 }],
-        // });
-        // this.anims.create({
-        //     key: 'stop-down',
-        //     frames: [{ key: 'playerAtlas', frame: 204 }],
-        // });
+        this.anims.create({
+            key: 'stop-left',
+            frames: [{ key: 'playerAtlas', frame: 172 }],
+        });
+        this.anims.create({
+            key: 'stop-right',
+            frames: [{ key: 'playerAtlas', frame: 236 }],
+        });
+        this.anims.create({
+            key: 'stop-up',
+            frames: [{ key: 'playerAtlas', frame: 140 }],
+        });
+        this.anims.create({
+            key: 'stop-down',
+            frames: [{ key: 'playerAtlas', frame: 204 }],
+        });
 		this.overlay = this.map.createLayer("Overlay", terrainLayer, 0, 0);
 		this.terrain.setScale(scale);
 		this.overlay.setScale(scale);
@@ -312,12 +324,12 @@ class startLevelOne extends Phaser.Scene {
 		this.text.setScrollFactor(0);
 		this.updateText();
 		this.visitedRooms = ["room_2_2"];
-		this.spawnEnemies();
+		// this.spawnEnemies();
 		this.hud = new HUD(this);
         this.hud.create();
 		// Create the HUD as a rectangle covering the bottom third of the viewport
 	
-		this.hud.toggleHud()
+		// this.hud.toggleHud()
 		this.enemyHandler = new EnemyHandler(
 			this.objectHandler,
 			this.turnHandler,
@@ -362,31 +374,48 @@ class startLevelOne extends Phaser.Scene {
 		}
 	}
 
-	checkInteract() {
-		let intObj = this.getCollision(this.playerHandler.prevDir);
-		console.log(intObj);
-		if ( Object.keys(this.doorHandler.doorTileTypes).includes(intObj.toString()) )
-		{
-			console.log("Door!");
-			let playerTargetCoords = this.getCollisionCoordinates(this.playerHandler.prevDir);
-			let playerSize = 16 * 3;
-			let doorLocation = {
-				x: playerTargetCoords[0] * playerSize,
-				y: playerTargetCoords[1] * playerSize,
-			};
-			this.playerHandler.lastDoorLocation = doorLocation
-			let doorTiles = this.doorHandler.getAdjacentDoors(
-				doorLocation.x,
-				doorLocation.y
-			);
-			console.log(doorTiles);
-			// Swap door tiles
-			this.swapTiles(doorTiles);
-		} else if ([0, 1, null, undefined].indexOf(intObj) >= 0)
-		{
-			console.log("other object!");
-		}
-	}
+    checkInteract() {
+        let doorTiles = []; // Initialize doorTiles here
+        let intObj = this.getCollision(this.playerHandler.prevDir);
+        console.log(intObj);
+        if ( Object.keys(this.doorHandler.doorTileTypes).includes(intObj.toString()) )
+        {
+            console.log("Door!");
+            let playerTargetCoords = this.getCollisionCoordinates(this.playerHandler.prevDir);
+            let playerSize = 16 * 3;
+            let doorLocation = {
+                x: playerTargetCoords[0] * playerSize,
+                y: playerTargetCoords[1] * playerSize,
+            };
+            this.playerHandler.lastDoorLocation = doorLocation;
+            doorTiles = this.doorHandler.getAdjacentDoors(doorLocation.x, doorLocation.y);
+
+            console.log(doorTiles);
+        } else if ([0, 1, null, undefined].indexOf(intObj) >= 0)
+        {
+            console.log("other object!");
+        }
+    
+        // Use doorTiles here
+        if (Object.keys(this.doorHandler.lockedDoorTypes).includes(intObj.toString())) {
+            console.log('Locked door detected');
+            if (this.bHasKey) {
+                console.log('Key found, swapping tiles');
+                console.log("doortiles are: ", doorTiles)
+                // Swap door tiles
+                this.swapTiles(doorTiles);
+            } else {
+                console.log('No key found, updating text area');
+                this.hud.textArea.setText("This door is locked! Maybe there's a key somewhere...");
+            }
+        } else {
+            console.log('Not a locked door, swapping tiles');
+            // Swap door tiles
+            this.swapTiles(doorTiles);
+        }
+    }
+    
+      
 
 	getCollisionCoordinates(targetDirection) {
 		let playerSize = 16 * 3;
@@ -420,26 +449,26 @@ class startLevelOne extends Phaser.Scene {
 		return targetCoords;
 	}
 
-	spawnEnemies() {
+	// spawnEnemies() {
 		
-		let tEnemy = "";
-		for (let index = 0; index < this.enemySpawnLocations.length; index++)
-		{
-			for (
-				let index1 = 0;
-				index1 < this.enemySpawnLocations[index].length;
-				index1++
-			)
-			{
-				tEnemy = this.enemies[Math.floor(Math.random() * this.enemies.length)];
-				console.log(tEnemy);
-				let xPos = this.enemySpawnLocations[index][index1][0] * 48; // Multiply by the tile size
-				let yPos = this.enemySpawnLocations[index][index1][1] * 52; // Multiply by the tile size
-				new GameObject([xPos, yPos], tEnemy, tEnemy + index + index1, this);
-				this.objectHandler.getObject(tEnemy + index + index1).setScale(2);
-			}
-		}
-	}
+	// 	let tEnemy = "";
+	// 	for (let index = 0; index < this.enemySpawnLocations.length; index++)
+	// 	{
+	// 		for (
+	// 			let index1 = 0;
+	// 			index1 < this.enemySpawnLocations[index].length;
+	// 			index1++
+	// 		)
+	// 		{
+	// 			tEnemy = this.enemies[Math.floor(Math.random() * this.enemies.length)];
+	// 			console.log(tEnemy);
+	// 			let xPos = this.enemySpawnLocations[index][index1][0] * 48; // Multiply by the tile size
+	// 			let yPos = this.enemySpawnLocations[index][index1][1] * 52; // Multiply by the tile size
+	// 			new GameObject([xPos, yPos], tEnemy, tEnemy + index + index1, this);
+	// 			this.objectHandler.getObject(tEnemy + index + index1).setScale(2);
+	// 		}
+	// 	}
+	// }
 
 	getCollision(targetDirection) {
 		let targetCoords = this.getCollisionCoordinates(targetDirection);
@@ -494,7 +523,8 @@ class startLevelOne extends Phaser.Scene {
 		{
 			this.animatingIntoRoom = true;
 			console.log("[Animation] Enter Room started");
-            this.hud.toggleHud()
+
+            // this.hud.toggleHud()
 			this.visitedRooms.push(this.currentRoom);
 			console.log(this.turnHandler.turns);
 			switch (this.playerHandler.prevDir)
@@ -537,13 +567,27 @@ class startLevelOne extends Phaser.Scene {
 				}
 			}
 			this.time.delayedCall(500, () => {
-				this.turnHandler.addToTurns("player");
-				this.objectHandler.runForEnemiesInRoom(this.currentRoom, (key) => { this.turnHandler.addToTurns(key) } );
+				// this.turnHandler.addToTurns("player");
+				// this.objectHandler.runForEnemiesInRoom(this.currentRoom, (key) => { this.turnHandler.addToTurns(key) } );
 				console.log("[Animation] Enter Room ended");
 				this.animatingIntoRoom = false;
-			});
+                if (this.currentRoom == "room_0_3" && !this.bRiddling){
+                    console.log("A Quiz!")
+                    this.bRiddling = true;
+                    this.hud.getTextArea().setText(this.sortedRiddle.riddle.riddle)
+                    this.bHasKey = true;
+                }
+                // this.hud.toggleHud() 
+			})
 		}
 	}
+
+    getRiddle() {
+        this.riddler.start().then(riddle => {
+            this.sortedRiddle = riddle;
+          });
+    }
+
 	playerInteract() {
 		const interact = () => {
 			this.checkInteract();
@@ -625,6 +669,12 @@ class startLevelOne extends Phaser.Scene {
 				this.enemyHandler.enemyMove(this.turnHandler.turns[0]);
             }
         }	
+        this.hud.hudComponents[8].setProgress(
+			ProgressBar.valueToPercentage(
+				this.eXperience,
+				0, 9999
+			)
+		)
 	}
 	  
 	updateText() {

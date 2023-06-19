@@ -28,4 +28,9 @@ $(document).ready(function () {
   $("#play").on("click", function () {
     $(location).attr("href", "./game.html");
   });
+  $("#scores").on("click", function() {
+    //It just sets the window's url to the home url
+    console.log("going to scores!")
+    $(location).attr("href", "./scores.html");
+  });
 });

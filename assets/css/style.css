@@ -17,6 +17,17 @@ h1 {
     text-shadow: var(--base-textshadow);
 }
 
+#selection {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center;
+    width: var(--menubtns-containerwidth);
+    margin-top: var(--menubtns-container-margintop);
+}
+
 #menu-btn-container {
     display: flex;
     flex-direction: column;

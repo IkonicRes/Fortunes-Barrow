@@ -83,23 +83,22 @@ class DNDApiHandler {
 		return monsterObject;
 	}
 
-	// Create Spell Object from data
 	createSpell(spellCurrentData) {
-		// console.log(monsterCurrentData.hit_points)
 		var spellObject = {
 			name: spellCurrentData.name,
 			desc: spellCurrentData.desc,
-			damage: spellCurrentData.damage,
+			damage: spellCurrentData.damage || '1d8+3',
 			range: spellCurrentData.range,
 			duration: spellCurrentData.duration,
 		};
 		return spellObject;
 	}
+	
 
 	createWeapon(weaponCurrentData) {
 		var weaponObject = {
 			name: weaponCurrentData.name,
-			damage: weaponCurrentData.damage,
+			damage: weaponCurrentData.damage || '1d8+3',
 			range: weaponCurrentData.weapon_range,
 		};
 		return weaponObject;

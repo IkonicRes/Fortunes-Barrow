@@ -16,12 +16,17 @@ class DoorHandler {
             1364: 1366,
             1411: 1413,
             1412: 1414,
+            1077: -1,
+            1078: -1,
+            1125: -1,
+            1126: -1,
+
         };
         this.lockedDoorTypes = {
-            1363: 1365,
-            1364: 1366,
-            1411: 1413,
-            1412: 1414,
+            1363: -1,
+            1364: -1,
+            1411: -1,
+            1412: -1,
         };
         this.hasKey = false;
     }
@@ -36,7 +41,7 @@ class DoorHandler {
         let doorTiles = [];
 
         for (let dir of directions) {
-            let targetCoords = [doorLocation[0] + dir[0], doorLocation[1] + dir[1]];
+            let targetCoords = [doorLocation[0] + dir[0], doorLocation[1] + dir[1]]
             let targetWorldCoords = {
                 x: targetCoords[0] * playerSize,
                 y: targetCoords[1] * playerSize,
@@ -57,23 +62,27 @@ class DoorHandler {
                     `Checking tile at (${targetWorldCoords.x}, ${targetWorldCoords.y
 					}) - Index: ${targetTile ? targetTile.index : "None"}`
                 );
+               // In the 'forEach' loop where you check the door tiles
                 Object.keys(this.doorTileTypes).forEach((element) => {
                     if (targetTile && targetTile.index == element) {
-                        if (
-                            Object.keys(this.lockedDoorTypes).includes(
-                                targetTile.index.toString()
-                            )
-                        ) {
+                        // check if the door is in the list of locked doors
+                        if (Object.keys(this.lockedDoorTypes).includes(targetTile.index.toString())) {
+                            // if the door is locked and the player doesn't have a key, do not add it to the doorTiles array
                             if (!this.hasKey) {
+                                console.log(`Door at (${targetWorldCoords.x}, ${targetWorldCoords.y}) is locked and player doesn't have a key.`);
                                 return;
+                            } else {
+                                console.log(`Door at (${targetWorldCoords.x}, ${targetWorldCoords.y}) is locked but player has a key.`);
                             }
                         }
+                        // if the door is not locked or if it is locked but the player has a key, add it to the doorTiles array
                         doorTiles.push({
                             x: targetWorldCoords.x,
                             y: targetWorldCoords.y
                         });
                     }
                 });
+
             } else {
                 console.log(
                     `Coordinates (${targetWorldCoords.x}, ${targetWorldCoords.y}) out of map bounds.`

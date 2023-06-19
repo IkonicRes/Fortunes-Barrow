@@ -71,4 +71,6 @@ $(document).ready(function () {
 	$("#play").on("click", function () {
 		$(location).attr("href", "./game.html");
 	});
+
+	
 });

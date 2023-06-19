@@ -1,4 +1,8 @@
-async function getRiddles() {
+class Riddler {
+  constructor() {
+    this.wrongAnswers = [];
+  }
+async getRiddles() {
   try {
     const response = await fetch("https://riddles-api.vercel.app/random");
     const data = await response.json();
@@ -9,16 +13,17 @@ async function getRiddles() {
   }
 }
 
-async function getAllRiddles() {
+async getAllRiddles() {
   let riddles = [];
   for (let i = 0; i < 100; i++) {
-    let tRiddle = await getRiddles();
+    let tRiddle = await this.getRiddles();
     riddles.push(tRiddle);
   }
   return riddles;
 }
 
-function filterOneWordRiddles(data) {
+
+filterOneWordRiddles(data) {
   const oneWordRiddles = data.filter((riddle) => {
     // Skip riddles without an answer key
     if (!riddle || !riddle.answer) {
@@ -34,9 +39,9 @@ function filterOneWordRiddles(data) {
   return oneWordRiddles;
 }
 
-let wrongAnswers = [];
+;
 
-async function fetchQuiz(correctAnswer) {
+async fetchQuiz(correctAnswer) {
   console.log(correctAnswer);
   try {
     const response1 = await fetch(
@@ -75,38 +80,52 @@ async function fetchQuiz(correctAnswer) {
       // Ensure we don't select the same word twice
       uniqueData.splice(randomIndex, 1);
     }
+    correctAnswer = correctAnswer.toUpperCase();
     wrongAnswers.splice(
-      Math.floor(Math.random() * wrongAnswers.length - 1),
+      Math.floor(Math.random() * wrongAnswers.length),
       0,
       correctAnswer
     );
     console.log(wrongAnswers);
 
-    return wrongAnswers;
+  return wrongAnswers;
+
   } catch (err) {
     console.error(err);
   }
 }
 
-getAllRiddles()
-  .then((allRiddles) => {
+async start() {
+  let randomRiddle;
+  let wrongAnswers;
+  try {
+    const allRiddles = await this.getAllRiddles();
     console.log(allRiddles);
-    const filteredRiddles = filterOneWordRiddles(allRiddles);
+    const filteredRiddles = this.filterOneWordRiddles(allRiddles);
     console.log(filteredRiddles);
+
     // Generate a random index to access a random riddle
     var randomIndex = Math.floor(Math.random() * filteredRiddles.length);
 
     // Generate the random riddle
-    var randomRiddle = filteredRiddles[randomIndex];
+    randomRiddle = filteredRiddles[randomIndex];
     console.log(randomRiddle);
+
     // Fetch the quiz with the correct answer
-    fetchQuiz(
+    wrongAnswers = await this.fetchQuiz(
       randomRiddle.answer
         .split("")
         .filter((char) => /^[a-zA-Z]*$/.test(char))
         .join("")
     );
-  })
-  .catch((err) => {
+  } catch (err) {
     console.error(err);
-  });
+  }
+
+  return {
+    riddle: randomRiddle,
+    wrongAnswers: wrongAnswers,
+  };
+}
+}
+export {Riddler};
