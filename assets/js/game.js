@@ -27,13 +27,13 @@ $(document).ready(function () {
 	var beginButton = $("#begin");
 
 	audio.muted = true; // Initially set the audio to muted
-	muteButton.text("🔊"); // Set muteButton to "unmute" state
+	muteButton.text("🔇"); // Set muteButton to "unmute" state
 
 	// Function to handle playing the audio
 	function playAudio() {
 		audio.muted = false;
 		audio.play();
-		muteButton.text("🔇"); // Change the muteButton to "mute" state after audio starts playing
+		muteButton.text("🔊"); // Change the muteButton to "mute" state after audio starts playing
 	}
 
 	// Play the audio on the first click of the #begin button
@@ -62,10 +62,10 @@ $(document).ready(function () {
 
 		if (audio.paused) {
 			audio.play();
-			muteButton.text("🔇");
+			muteButton.text("🔊");
 		} else {
 			audio.pause();
-			muteButton.text("🔊");
+			muteButton.text("🔇");
 		}
 	});
 

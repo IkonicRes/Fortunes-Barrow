@@ -9,6 +9,35 @@ body {
     align-items: center;
 }
 
+.modal-card-body {
+    background-color: rgb(41, 41, 41);
+    text-align: center;
+    padding: 10vw;
+    font-size: 1.2rem;
+}
+#okButton{
+background-color: rgb(41, 41, 41);
+color: var(--main-text-color)
+}
+.modal-card-title{
+    color: var(--main-text-color)
+}
+
+.modal-card-head{
+    background-color: rgb(24, 24, 24);
+    text-align: center;
+    font-size: 1.2rem;
+    color: var(--main-text-color)
+}
+.modal-card-foot{
+    background-color: rgb(24, 24, 24);
+    text-align: center;
+    font-size: 1.2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
 .score {
     display: flex;
     justify-content: space-between;
