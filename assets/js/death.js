@@ -14,6 +14,7 @@ $(document).ready(function () {
 
   // Play the audio on the first user interaction with the page
   $(document).one("click", function () {
+
     audio.muted = false;
     audio.play();
     muteButton.text("🔇"); // Change the muteButton to "mute" state after audio starts playing
@@ -24,10 +25,18 @@ $(document).ready(function () {
     // Toggle the audio playback and change the muteButton state accordingly
     if (audio.paused) {
       audio.play();
-      muteButton.text("🔇");
+      
+      muteButton.text("🔊");
     } else {
       audio.pause();
+      muteButton.text("🔇");
+  // Change muteButton to the "unmute" state
+      muteButton.text("🔇"); 
+    } else {
+      audio.pause();
+      // Change muteButton to the "mute" state
       muteButton.text("🔊");
+
     }
   });
 

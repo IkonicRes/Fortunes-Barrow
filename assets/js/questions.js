@@ -15,16 +15,17 @@ async getRiddles() {
     console.error(err);
   }
 }
-
-// Function to fetch multiple riddles
+  // Function to fetch multiple riddles
 async getAllRiddles() {
-  // Array to store the fetched riddles
+   // Array to store the fetched riddles
   let riddles = [];
   // Looping 100 times to fetch multiple riddles
   for (let i = 0; i < 100; i++) {
-    // Fetching a single riddle using the getRiddles() function
+
+  // Fetching a single riddle using the getRiddles() function
     let tRiddle = await this.getRiddles();
-    // Adding the fetched riddle to the riddles array
+  // Adding the fetched riddle to the riddles array
+
     riddles.push(tRiddle);
   }
   // Returning the array of fetched riddles
@@ -32,7 +33,6 @@ async getAllRiddles() {
 }
 
 // Function to filter riddles with only one-word answers
-
 filterOneWordRiddles(data) {
   const oneWordRiddles = data.filter((riddle) => {
     // Skip riddles without an answer key
@@ -48,9 +48,8 @@ filterOneWordRiddles(data) {
 }
 
 ;
-
-// Function to fetch related words for a given correct answer
 async fetchQuiz(correctAnswer) {
+
   console.log(correctAnswer);
   try {
     // Fetching related words using two different API endpoints
@@ -95,7 +94,6 @@ async fetchQuiz(correctAnswer) {
       uniqueData.splice(randomIndex, 1);
     }
     correctAnswer = correctAnswer.toUpperCase();
-    // Inserting the correct answer at a random index within the wrongAnswers array
     wrongAnswers.splice(
       Math.floor(Math.random() * wrongAnswers.length),
       0,
@@ -104,7 +102,6 @@ async fetchQuiz(correctAnswer) {
     console.log(wrongAnswers);
     // Returning the array of wrong answers
   return wrongAnswers;
-
     // Logging any errors that occur during the fetching process
   } catch (err) {
     console.error(err);
@@ -119,15 +116,13 @@ async start() {
     console.log(allRiddles);
     // Filtering the riddles to only have one-word answers
     const filteredRiddles = this.filterOneWordRiddles(allRiddles);
-    // Logging the filtered riddles
     console.log(filteredRiddles);
 
     // Generate a random index to access a random riddle
     var randomIndex = Math.floor(Math.random() * filteredRiddles.length);
     // Generate the random riddle
     randomRiddle = filteredRiddles[randomIndex];
-    console.log(randomRiddle);
-
+    console.log(randomRiddle)
     // Fetch the quiz with the correct answer
     wrongAnswers = await this.fetchQuiz(
       randomRiddle.answer
@@ -139,7 +134,6 @@ async start() {
         .join("")
     );
   } catch (err) {
-    // Logging any errors that occur during the fetching or processing of riddles
     console.error(err);
   }
 

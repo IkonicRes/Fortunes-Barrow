@@ -19,8 +19,9 @@ $(document).ready(function () {
     event.stopPropagation(); // Prevent event bubbling
 
     if (audio.paused) {
-      // Resume playing the audio
-      audio.play();
+
+  // Resume playing the audio
+      audio.play(); 
       // Change the muteButton to the "unmute" state
       muteButton.text("🔊");
     } else {

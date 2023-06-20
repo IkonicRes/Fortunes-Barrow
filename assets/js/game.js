@@ -1,7 +1,6 @@
 
 import { startLevelOne } from "./scene.js";
 
-// Set the repository name and base directory based on the current window location
 var repoName = "/Team-Grumbly-Project01";
 
 // function getSortData(){
@@ -23,12 +22,9 @@ var repoName = "/Team-Grumbly-Project01";
 
 //Pre-game logic
 $(document).ready(function () {
-  // Get the audio element and the mute button using jQuery
-  var audio = document.getElementById("menu-music");
-  var muteButton = $("#mute");
-
-  // Get the begin button and set the initial state
-  var beginButton = $("#begin");
+	var audio = document.getElementById("menu-music");
+	var muteButton = $("#mute");
+	var beginButton = $("#begin");
 
 	audio.muted = true; // Initially set the audio to muted
 	muteButton.text("🔇"); // Set muteButton to "unmute" state
@@ -61,9 +57,8 @@ $(document).ready(function () {
 		const game = new Phaser.Game(config);
 	});
 
-  // Event handler for the mute button
-  muteButton.on("click", function (event) {
-    event.stopPropagation();
+	muteButton.on("click", function (event) {
+		event.stopPropagation();
 
 		if (audio.paused) {
 			audio.play();

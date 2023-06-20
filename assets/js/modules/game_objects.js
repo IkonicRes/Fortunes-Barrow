@@ -11,7 +11,6 @@ function getRoomIndex(objectName, scene) {
   // Create a string that uniquely identifies the room
   return `room_${roomX}_${roomY}`;
 }
-
 // OBJECT HANDLER FOR EASIER HANDLING OF MULTIPLE SPRITES
 class ObjectHandler {
 
@@ -80,11 +79,6 @@ class GameObject {
 		return this.object;
 	}
 }
-
-
-
-// Export the getRoomIndex function for external use
-export { getRoomIndex };
 
 export {
     getRoomIndex, GameObject, ObjectHandler
