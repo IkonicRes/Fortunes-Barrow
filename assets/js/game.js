@@ -50,7 +50,7 @@ $(document).ready(function () {
 			physics: {
 				default: "arcade",
 				arcade: {
-					debug: true, // Set to true for collision debugging
+					debug: false, // Set to true for collision debugging
 				},
 			},
 		};

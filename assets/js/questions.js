@@ -71,15 +71,17 @@ async fetchQuiz(correctAnswer) {
       console.log("Not enough related words found");
       return;
     }
-
     const wrongAnswers = [];
-    for (let i = 0; i < 3; i++) {
-      const randomIndex = Math.floor(Math.random() * uniqueData.length);
 
-      wrongAnswers.push(uniqueData[randomIndex].word.toUpperCase());
+    for (let i = 0; i < 3; i++) {
+      // Get the index of the last three elements
+      const lastIndex = uniqueData.length - 1 - i;
+      
+      wrongAnswers.push(uniqueData[lastIndex].word.toUpperCase());
       // Ensure we don't select the same word twice
-      uniqueData.splice(randomIndex, 1);
+      uniqueData.splice(lastIndex, 1);
     }
+    
     correctAnswer = correctAnswer.toUpperCase();
     wrongAnswers.splice(
       Math.floor(Math.random() * wrongAnswers.length),
@@ -87,7 +89,7 @@ async fetchQuiz(correctAnswer) {
       correctAnswer
     );
     console.log(wrongAnswers);
-
+    
   return wrongAnswers;
 
   } catch (err) {
@@ -105,10 +107,17 @@ async start() {
     console.log(filteredRiddles);
 
     // Generate a random index to access a random riddle
-    var randomIndex = Math.floor(Math.random() * filteredRiddles.length);
-
+    
+    let foundRiddle = false
+    while(!foundRiddle){
+      var randomIndex = Math.floor(Math.random() * filteredRiddles.length);
+      randomRiddle = filteredRiddles[randomIndex];
+      if (!/\d/.test(randomRiddle.answer)){
+        foundRiddle = true
+      }
+    }
     // Generate the random riddle
-    randomRiddle = filteredRiddles[randomIndex];
+    
     console.log(randomRiddle);
 
     // Fetch the quiz with the correct answer

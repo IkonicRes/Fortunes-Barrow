@@ -80,6 +80,11 @@ class startLevelOne extends Phaser.Scene {
 			{ frameWidth: 16, frameHeight: 16 }
 		);
 		this.load.spritesheet(
+			"choiceButton",
+			getAssetUrl("/assets/images/icons/choice.png"),
+			{ frameWidth: 256, frameHeight: 112 }
+		);
+		this.load.spritesheet(
 			"goblin",
 			getAssetUrl("/assets/images/characters/T_goblin.png"),
 			{ frameWidth: 16, frameHeight: 16 }
@@ -199,7 +204,7 @@ class startLevelOne extends Phaser.Scene {
 		];
 		this.bInput = true;
 		this.eXperience = 0;
-		this.bHasKey = false;
+		this.bHasKey = true;
     this.inQuiz = false;
 	}
 
@@ -327,7 +332,6 @@ class startLevelOne extends Phaser.Scene {
       fill: "#ffffff",
     });
     this.text.setScrollFactor(0);
-    this.updateText();
     this.spawnEnemies();
     this.hud = new HUD(this);
     this.hud.create();
@@ -393,22 +397,20 @@ class startLevelOne extends Phaser.Scene {
 			doorLocation.y
 		);
 		} else if ([0, 1, null, undefined].indexOf(intObj) >= 0) {
-		console.log("other object!");
+		this.updateDialogueText("This doesnt seem to do anything...");
 		}
 
 		// Use doorTiles here
 		if (Object.keys(this.doorHandler.lockedDoorTypes).includes(intObj.toString())) {
-			console.log("Locked door detected");
 			if (this.bHasKey) {
-				console.log("Key found, swapping tiles");
 				// Swap door tiles
 				this.swapTiles(doorTiles);
 			} else {
 				console.log("No key found, updating text area");
-				this.hud.textArea.setText("This door is locked! Maybe there's a key somewhere...");
+				this.updateDialogueText("This door is locked! Maybe there's a key somewhere...");
 			} 
 		} else {
-			console.log("Not a locked door, swapping tiles");
+			this.updateDialogueText("You unlock the door");
 			
 			if (doorTiles.some(r => [1077, 1078, 1125, 1126].indexOf(this.getTileAt(r.x, r.y, "Collision").index) >= 0)) 
 			{
@@ -556,6 +558,7 @@ class startLevelOne extends Phaser.Scene {
 			this.playerHandler.moveUp();
 			}
 		}
+    
 		this.time.delayedCall(500, () => {
 			this.objectHandler.runForEnemiesInRoom(this.playerHandler.currentRoom, (key) => {
 			this.turnHandler.addToTurns(key);
@@ -612,6 +615,9 @@ class startLevelOne extends Phaser.Scene {
         this.playerInteract();
       }
     }
+    if (this.healingSpellCooldown > 0) {
+      this.healingSpellCooldown--;
+    }
 	this.turnHandler.consumeTurn();
   }
 
@@ -621,7 +627,32 @@ class startLevelOne extends Phaser.Scene {
     }
   }
 
+  updateDialogueText(inputText) {
+    this.hud.textArea.setText(inputText)
+  }
+
   update(time, delta) {
+    if (!this.inQuiz && !this.bHasKey){
+      console.log(this.sortedRiddle)
+  console.log("Current Room Is: ", this.playerHandler.currentRoom)
+  if (this.playerHandler.currentRoom == "room_0_3"){
+    this.inQuiz = true
+    this.hud.toggleHud()
+    this.updateDialogueText("Welcome to my abode, lost one..... If you wish to leave this place, I alone hold the key. Answer my riddle and gain your freedom.")
+    setTimeout(() => {
+      this.updateDialogueText(this.sortedRiddle.riddle.riddle)
+    }, 3000)
+    for(let index = 0; index < this.hud.choiceButtons.length; index++){
+      this.hud.texts[index].setText(this.sortedRiddle.riddle.wrongAnswers[index])
+    }
+  if (this.selectedAnswer.toLowerCase() == this.sortedRiddle.riddle.answer.toLowerCase()){
+    this.updateDialogueText("Congratulations, wanderer.. You have earned your escape. Now leave me...")
+    this.bHasKey == true;
+  }
+    console.log(this.hud.texts)
+  }
+}
+
     if (
       this.turnHandler.turns[0] == "player" ||
       this.turnHandler.turns.length == 0
@@ -707,7 +738,7 @@ class startLevelOne extends Phaser.Scene {
           this.enemyHandler.enemyMove(this.turnHandler.turns[0]);
           setTimeout(() => {
             this.scene.resume();
-          }, 200);
+          }, 1000);
           this.scene.pause();
         }
         
@@ -726,6 +757,7 @@ class startLevelOne extends Phaser.Scene {
         }
       }
     }
+    
     this.hud.hudComponents[8].setProgress(
       ProgressBar.valueToPercentage(this.eXperience, 0, 9999)
       );
@@ -734,11 +766,7 @@ class startLevelOne extends Phaser.Scene {
       }
     }
 
-  updateText() {
-    this.text.setText(
-      `Arrow keys to move. Space to interact. Current Turn: ${this.turnHandler.currentTurn}`
-    );
-  }
+  
 }
 
 export { startLevelOne };

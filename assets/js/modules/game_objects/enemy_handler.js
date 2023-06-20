@@ -46,7 +46,7 @@ class EnemyHandler {
 				this.scene.turnHandler.currentTurnAction = "none"
 				this.scene.hud.toggleHud()
 				this.scene.turnHandler.turns = []
-				console.log("turns clearewd")
+				this.scene.updateDialogueText("You have left combat.")
 			}
 		}
 	}
@@ -75,7 +75,7 @@ class EnemyHandler {
 			damageRoll: this.enemy.getData("damageRoll"),
 		}
 		
-		console.log("Monster Object for", enemyName, "is", monsterObject);
+		this.scene.updateDialogueText("Monster Object for", enemyName, "is", monsterObject);
 	  
 		const player = this.objectHandler.getObject("player");
 		const deltaX = player.x - this.enemy.x;
@@ -92,7 +92,7 @@ class EnemyHandler {
 		if (distanceX <= maxDistance && distanceY <= maxDistance) {
 		  // Attack or block logic goes here
 		  this.enemy.shouldAttack = true;
-		  console.log(`${enemyName} is in range for attack or block`);
+		  this.scene.updateDialogueText(`${enemyName} is in range for attack or block`);
 		} else {
 		  // Move towards the player's position
 		  if (
@@ -160,13 +160,13 @@ class EnemyHandler {
 			}
 			this.scene.playerHandler.setHealth(this.scene.playerHandler.health - damage)
 				
-			console.log(`${enemyName} attacks the player for ${damage} damage.`);
+			this.scene.updateDialogueText(`${enemyName} attacks the player for ${damage} damage.`);
 			// Update the player's health or apply the damage to the player here
 			// For example: this.objectHandler.getObject("player").health -= damage;
 		};
 		damageRoll();
 		} else {
-		  console.log(`${enemyName} is not in attack range.`);
+		  this.scene.updateDialogueText(`${enemyName} is not in attack range.`);
 		}
 	  }
 	
@@ -174,7 +174,7 @@ class EnemyHandler {
 	performBlock(enemy) {
 	  // Implement the block logic for the enemy
 	  // ...
-	  console.log(`Enemy ${enemy.name} is blocking!`);
+	  this.scene.updateDialogueText(`Enemy ${enemy.name} is blocking!`);
 	}
   }
 

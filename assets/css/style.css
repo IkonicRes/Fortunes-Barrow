@@ -43,7 +43,7 @@ color: var(--main-text-color)
     justify-content: space-between;
 }
 canvas {
-    margin-top: 12vh;
+    margin-top: 2vh;
 }
 #callsign {
     color: var(--main-text-color)

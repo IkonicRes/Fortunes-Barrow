@@ -36,12 +36,12 @@ class PlayerHandler {
 			if (modifier) {
 				mitigation += parseInt(modifier);
 			}
-			console.log(`Damage was mitigated by ${mitigation} points.`);
+			this.scene.updateDialogueText(`Damage was mitigated by ${mitigation} points.`);
 			// Apply mitigation to the newHealth
 			newHealth = Math.max(newHealth - mitigation, 0);
 			this.isBlocking = false; // Reset the block status
 		}
-		this.health = Math.max(0, Math.min(newHealth + (this.scene.eXperience / 50), this.maxHealth));
+		this.health = Math.max(0, Math.min(newHealth + (this.scene.eXperience / 1000), this.maxHealth));
 		console.log(newHealth)
 		this.scene.hud.progressBars[3].setProgress(
 			ProgressBar.valueToPercentage(
@@ -82,7 +82,7 @@ class PlayerHandler {
 
 	block() {
 		this.isBlocking = true;
-		console.log(`${this.player.name} is preparing to block the next attack.`);
+		this.scene.updateDialogueText(`${this.player.name} is preparing to block the next attack.`);
 	}
 
 	getRange(weapon) {
@@ -142,11 +142,11 @@ class PlayerHandler {
 				// Apply damage to the enemy
 				console.log(closestEnemy)
 				this.scene.enemyHandler.setHealth(parseInt(closestEnemy.enemyObj.getData("health")) - damage, closestEnemy.name)
-				console.log(`${player.name} attacks ${closestEnemy.enemyObj} for ${damage} damage using ${weaponKey}.`);
+				this.scene.updateDialogueText(`${player.name} attacks ${closestEnemy.enemyObj} for ${damage} damage using ${weaponKey}.`);
 			};
 			damageRoll();
 		} else {
-			console.log(`${closestEnemy.enemyObj} is not in attack range.`);
+			this.scene.updateDialogueText(`${closestEnemy.enemyObj} is not in attack range.`);
 		}
 	}
 	

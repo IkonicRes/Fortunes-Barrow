@@ -145,6 +145,8 @@ class ProgressBar {
       this.cyclingImageButton;
       this.hudComponents = [];
       this.enemiesInRoom = []
+      this.choiceButtons = [];
+      this.texts = []
     }
   
     setEnemiesInRoom() {
@@ -300,8 +302,39 @@ class ProgressBar {
 
     // Update the image index, loop back to 0 if we've gone past the end of the array
     this.imageIndex = (this.imageIndex + 1) % this.imageKeys.length;
+    })
+    this.choiceButtons = [];
+    this.answers = ["Answer 1", "Answer 2", "Answer 3", "Answer 4"];
+    let choiceButtonSpacing = hudPosition.sectionHeight / 3;
+    let choiceButtonHeight = choiceButtonSpacing * 2.5;
+    let camera = this.scene.cameras.main
+    for(let i = 0; i < 4; i++) {
+      let choiceButton = this.scene.add
+        .image(
+          camera.centerX,
+          camera.centerY + choiceButtonSpacing * (i - 1.5),
+          'choiceButton'
+        )
+        .setInteractive()
+        .setDepth(9999)
+        .setOrigin(0.5)
+        .setDisplaySize(hudPosition.sectionWidth / 6, buttonHeight * 2)
+        .setScrollFactor(0)
+      this.choiceButtons.push(new Component(choiceButton));
+      choiceButton.visible = false;
     
-    });
+      let text = this.scene.add.text(camera.centerX, camera.centerY + choiceButtonSpacing * (i - 1.5), '', { color: '#000', fontSize: '16px' });
+      text.setOrigin(0.5);
+      text.setScrollFactor(0);
+      text.visible = false;
+      this.texts.push(text);
+    
+      choiceButton.on('pointerdown', () => {
+        console.log(`Button ${i} pressed, answer is ${this.answers[i]}`);
+      });
+    }
+    
+    this.showButtons();
     this.buttons[0].on("pointerdown", () => {
         console.log("Wobjects: ", this.scene.dndApiHandler)
         let weaponKey;
@@ -408,6 +441,26 @@ class ProgressBar {
     }
     getTextArea() {
         return this.textArea;
+    }
+
+    showButtons() {
+      if (!this.texts || !this.answers) {
+        setTimeout (this.showButtons(), 1000)
+        return;  // Not ready yet, so we just exit the function
+      }
+      for(let i = 0; i < 4; i++) {
+        this.texts[i].setText(this.answers[i]);
+        this.texts[i].visible = true;
+        this.choiceButtons[i].visible = true;
+      }
+    }
+    
+    hideButtons() {
+      for(let i = 0; i < 4; i++) {
+        this.texts[i].visible = false;
+        this.choiceButtons[i].visible = false;
+      }
+    
     }
 
     toggleHud() {
