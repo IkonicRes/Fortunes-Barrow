@@ -32,12 +32,7 @@ $(document).ready(function () {
       muteButton.text("🔇");
   // Change muteButton to the "unmute" state
       muteButton.text("🔇"); 
-    } else {
-      audio.pause();
-      // Change muteButton to the "mute" state
-      muteButton.text("🔊");
-
-    }
+    } 
   });
 
   // Change location on #play button click
