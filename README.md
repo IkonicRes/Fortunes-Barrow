@@ -41,3 +41,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ## Features
 
 Move through different rooms, answer riddles, recieve keys, battle monsters, and obtain weapons. 
+<img width="1440" alt="Screen Shot 2023-06-20 at 7 29 10 PM" src="https://github.com/IkonicRes/Fortunes-Barrow/assets/128300265/7457f59a-ea13-413f-aa0f-ffc4fb29411a">
+
