@@ -8,7 +8,7 @@ class Riddler {
 
   async getRiddles() {
     try {
-      const response = await fetch("http://riddles-api.vercel.app/random");
+      const response = await fetch("https://riddles-api.vercel.app/random");
       const data = await response.json();
       return data; // Assuming the riddles are in the zero index
     } catch (err) {
@@ -31,8 +31,8 @@ class Riddler {
 
   async fetchQuiz(correctAnswer) {
     try {
-      const response1 = await fetch(`http://api.datamuse.com/words?ml=${correctAnswer}&max=10`);
-      const response2 = await fetch(`http://api.datamuse.com/words?rel_trg=${correctAnswer}&max=10`);
+      const response1 = await fetch(`https://api.datamuse.com/words?ml=${correctAnswer}&max=10`);
+      const response2 = await fetch(`https://api.datamuse.com/words?rel_trg=${correctAnswer}&max=10`);
       if (!response1.ok || !response2.ok) {
         throw new Error(`HTTP error! status: ${response1.status}, ${response2.status}`);
       }
