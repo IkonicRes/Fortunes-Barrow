@@ -34,10 +34,17 @@ function setDefaultHighScore() {
 function addClearButtonListener() {
     $("#clear").on("click", function() {
         localStorage.clear();
-        $("li").remove(".list-group-item")
-        setDefaultHighScore()
+        $("li").remove(".list-group-item");
+
+        // Create a new array containing only the default high score
+        var defaultScore = ["Highest Score", 0];
+        // Then reverse bubble sort the score arrays so that they are ordered by score highest to lowest
+        var scoresPostCleared = bubbleSort([defaultScore]);
+        // Run the populateScores function with the newly ordered scores
+        populateScores(scoresPostCleared);
     });
 }
+
 
 //This function runs my all-time favorite algorithm in reverse, bubblesort! For more on how the algorithm works, check here ===> https://www.geeksforgeeks.org/bubble-sort
 function bubbleSort(inputArr) {
