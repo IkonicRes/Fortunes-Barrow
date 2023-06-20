@@ -30,7 +30,7 @@
     --menubtns-container-margintop: 8vh;
     --menubtn-margintop: 1vw;
     --mutemargin: .5vw;
-    --mutepadding: .15vw 0 0 .25vw;
+    --mutepadding: 0 0 .25vh .25vw;
 /* BORDERS */
     --menubtn-border-radius: 25%;
     --mute-border-radius: 50%;

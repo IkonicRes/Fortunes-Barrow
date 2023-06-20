@@ -36,12 +36,12 @@ class PlayerHandler {
 			if (modifier) {
 				mitigation += parseInt(modifier);
 			}
-			console.log(`Damage was mitigated by ${mitigation} points.`);
+			this.scene.updateDialogueText(`Damage was mitigated by ${mitigation} points.`);
 			// Apply mitigation to the newHealth
 			newHealth = Math.max(newHealth - mitigation, 0);
 			this.isBlocking = false; // Reset the block status
 		}
-		this.health = Math.max(0, Math.min(newHealth + (this.scene.eXperience / 50), this.maxHealth));
+		this.health = Math.max(0, Math.min(newHealth + (this.scene.eXperience / 1000), this.maxHealth));
 		console.log(newHealth)
 		this.scene.hud.progressBars[3].setProgress(
 			ProgressBar.valueToPercentage(
@@ -82,7 +82,7 @@ class PlayerHandler {
 
 	block() {
 		this.isBlocking = true;
-		console.log(`${this.player.name} is preparing to block the next attack.`);
+		this.scene.updateDialogueText(`${this.player.name} is preparing to block the next attack.`);
 	}
 
 	getRange(weapon) {
@@ -142,11 +142,11 @@ class PlayerHandler {
 				// Apply damage to the enemy
 				console.log(closestEnemy)
 				this.scene.enemyHandler.setHealth(parseInt(closestEnemy.enemyObj.getData("health")) - damage, closestEnemy.name)
-				console.log(`${player.name} attacks ${closestEnemy.enemyObj} for ${damage} damage using ${weaponKey}.`);
+				this.scene.updateDialogueText(`${player.name} attacks ${closestEnemy.enemyObj} for ${damage} damage using ${weaponKey}.`);
 			};
 			damageRoll();
 		} else {
-			console.log(`${closestEnemy.enemyObj} is not in attack range.`);
+			this.scene.updateDialogueText(`${closestEnemy.enemyObj} is not in attack range.`);
 		}
 	}
 	
@@ -160,16 +160,16 @@ class PlayerHandler {
 			// Calculate the distance to the player
 			const distanceX = Math.abs(deltaX);
 			const distanceY = Math.abs(deltaY);
-			console.log(deltaX, deltaY);
+			console.log(distanceX, distanceY);
 		  
-			// Calculate the maximum allowed distance based on the enemy's range
+			// Calculate the maximum allowed distance
 			const maxDistance = 1 * this.scene.gridSize/2;
 			console.log(maxDistance)
-			// Check if the enemy is within the attack range
+			// Check if the door is within the range
 			if (distanceX <= maxDistance && distanceY <= maxDistance) {
 				console.log(`Infront of door`);
 				if (deltaX != 0) {
-					if (deltaX < 0) { this.moveLeft(); }
+					if (deltaX > 0) { this.moveLeft(); }
 					else { this.moveRight(); }
 				}
 				if (deltaY != 0) {
@@ -187,32 +187,27 @@ class PlayerHandler {
 				console.log("not at door")
 			  // Move towards the doors's position
 			  if (
-				distanceX != maxDistance - this.tileSize ||
-				distanceY != maxDistance - this.tileSize
+				distanceX != maxDistance - this.scene.gridSize/2 ||
+				distanceY != maxDistance - this.scene.gridSize/2
 			  ) {
 				console.log("movable range")
-				// If outside attack range, move towards the player
-				if (distanceY <= -16) {
-					console.log("test")
-					this.scene.turnHandler.turns = []
-				} else {
-					if (distanceX > distanceY) {
-						console.log("X Greater")
-					// Move horizontally towards the player
-					if (deltaX < 0) { this.moveLeft(); }
-					else { this.moveRight(); }
-					} else {
+					if (distanceX < distanceY) {
 						console.log("Y Greater")
 						if (deltaY > 0) { this.moveUp(); }
 						else { this.moveDown(); }
+					} else {
+						// Move horizontally towards the player
+						console.log("X Greater")
+						if (deltaX > 0) { this.moveLeft(); }
+						else { this.moveRight(); }
 					}
 					this.scene.turnHandler.turns = ["player"]
-				}
+				// }
 			  }
 			}
 		}
 	}
-
+	
 	moveLeft = () => {
 		this.prevDir = "left";
     	this.scene.objectHandler.getObject("player").anims.play('left', true);
