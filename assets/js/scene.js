@@ -120,18 +120,18 @@ class startLevelOne extends Phaser.Scene {
 			{ frameWidth: 1024, frameHeight: 1024 }
 		);
 		this.load.spritesheet(
-			"action",
-			getAssetUrl("/assets/images/icons/action.png"),
+			"Action",
+			getAssetUrl("/assets/images/icons/Action.png"),
 			{ frameWidth: 225, frameHeight: 70 }
     );
     this.load.spritesheet(
-      "pass",
-      getAssetUrl("/assets/images/icons/pass.png"),
+      "Pass",
+      getAssetUrl("/assets/images/icons/Pass.png"),
       { frameWidth: 225, frameHeight: 70 }
     );
     this.load.spritesheet(
-      "run",
-      getAssetUrl("/assets/images/icons/run.png"),
+      "Run",
+      getAssetUrl("/assets/images/icons/Run.png"),
       { frameWidth: 225, frameHeight: 70 }
 		);
 		this.enemies = ["orc", "goblin", "skeleton"];

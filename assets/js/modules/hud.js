@@ -199,9 +199,9 @@ class ProgressBar {
       this.textArea = new Component(this.textArea)
 
       let buttonImages = [
-        "action",
-        "pass",
-        "run",
+        "Action",
+        "Pass",
+        "Run",
       ];
       let buttonSpacing = sectionHeight / 3;
       let buttonHeight = buttonSpacing * 2.5;
