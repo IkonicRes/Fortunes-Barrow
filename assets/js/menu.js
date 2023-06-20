@@ -11,7 +11,10 @@ $(document).ready(function () {
     audio.play();
     muteButton.text("🔇"); // Change the muteButton to "mute" state after audio starts playing
   });
-
+  document.getElementById('instructionsModal').classList.add('is-active');
+  document.getElementById('okButton').addEventListener('click', function() {
+    document.getElementById('instructionsModal').classList.remove('is-active');
+  });
   muteButton.on("click", function (event) {
     event.stopPropagation();
 
@@ -27,5 +30,10 @@ $(document).ready(function () {
   // Change location on #play button click
   $("#play").on("click", function () {
     $(location).attr("href", "./game.html");
+  });
+  $("#scores").on("click", function() {
+    //It just sets the window's url to the home url
+    console.log("going to scores!")
+    $(location).attr("href", "./scores.html");
   });
 });
