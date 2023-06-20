@@ -1,5 +1,8 @@
-// Function to fetch a single riddle
-async function getRiddles() {
+class Riddler {
+  constructor() {
+    this.wrongAnswers = [];
+  }
+async getRiddles() {
   try {
     // Sending a GET request to the riddles API
     const response = await fetch("https://riddles-api.vercel.app/random");
@@ -14,13 +17,13 @@ async function getRiddles() {
 }
 
 // Function to fetch multiple riddles
-async function getAllRiddles() {
+async getAllRiddles() {
   // Array to store the fetched riddles
   let riddles = [];
   // Looping 100 times to fetch multiple riddles
   for (let i = 0; i < 100; i++) {
     // Fetching a single riddle using the getRiddles() function
-    let tRiddle = await getRiddles();
+    let tRiddle = await this.getRiddles();
     // Adding the fetched riddle to the riddles array
     riddles.push(tRiddle);
   }
@@ -29,7 +32,8 @@ async function getAllRiddles() {
 }
 
 // Function to filter riddles with only one-word answers
-function filterOneWordRiddles(data) {
+
+filterOneWordRiddles(data) {
   const oneWordRiddles = data.filter((riddle) => {
     // Skip riddles without an answer key
     if (!riddle || !riddle.answer) {
@@ -43,10 +47,10 @@ function filterOneWordRiddles(data) {
   return oneWordRiddles;
 }
 
-let wrongAnswers = [];
+;
 
 // Function to fetch related words for a given correct answer
-async function fetchQuiz(correctAnswer) {
+async fetchQuiz(correctAnswer) {
   console.log(correctAnswer);
   try {
     // Fetching related words using two different API endpoints
@@ -90,36 +94,42 @@ async function fetchQuiz(correctAnswer) {
       // Ensuring we don't select the same word twice
       uniqueData.splice(randomIndex, 1);
     }
+    correctAnswer = correctAnswer.toUpperCase();
     // Inserting the correct answer at a random index within the wrongAnswers array
     wrongAnswers.splice(
-      Math.floor(Math.random() * wrongAnswers.length - 1),
+      Math.floor(Math.random() * wrongAnswers.length),
       0,
       correctAnswer
     );
     console.log(wrongAnswers);
     // Returning the array of wrong answers
-    return wrongAnswers;
+  return wrongAnswers;
+
     // Logging any errors that occur during the fetching process
   } catch (err) {
     console.error(err);
   }
 }
 
-// Fetch all riddles and process them
-getAllRiddles()
-  .then((allRiddles) => {
+async start() {
+  let randomRiddle;
+  let wrongAnswers;
+  try {
+    const allRiddles = await this.getAllRiddles();
     console.log(allRiddles);
     // Filtering the riddles to only have one-word answers
-    const filteredRiddles = filterOneWordRiddles(allRiddles);
+    const filteredRiddles = this.filterOneWordRiddles(allRiddles);
     // Logging the filtered riddles
     console.log(filteredRiddles);
+
     // Generate a random index to access a random riddle
     var randomIndex = Math.floor(Math.random() * filteredRiddles.length);
     // Generate the random riddle
-    var randomRiddle = filteredRiddles[randomIndex];
+    randomRiddle = filteredRiddles[randomIndex];
     console.log(randomRiddle);
-    // Fetch the quiz with the correct answer & removing non-alphabetic characters
-    fetchQuiz(
+
+    // Fetch the quiz with the correct answer
+    wrongAnswers = await this.fetchQuiz(
       randomRiddle.answer
         // Splitting the answer into an array of characters
         .split("")
@@ -128,8 +138,15 @@ getAllRiddles()
         // Joining the remaining characters back into a single string
         .join("")
     );
-  })
-  .catch((err) => {
+  } catch (err) {
     // Logging any errors that occur during the fetching or processing of riddles
     console.error(err);
-  });
+  }
+
+  return {
+    riddle: randomRiddle,
+    wrongAnswers: wrongAnswers,
+  };
+}
+}
+export {Riddler};

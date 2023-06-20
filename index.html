@@ -10,10 +10,12 @@
       href="https://fonts.googleapis.com/css?family=MedievalSharp"
     />
     <link rel="stylesheet" href="./assets/css/reset.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
 
     <link rel="stylesheet" href="./assets/css/root.css" />
 
     <link rel="stylesheet" href="./assets/css/style.css" />
+
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 
@@ -21,6 +23,28 @@
   </head>
 
   <body>
+    <div id="instructionsModal" class="modal">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+          <header class="modal-card-head">
+              <h2 class="modal-card-title">Game Instructions</h2>
+          </header>
+          <section class="modal-card-body">
+              <!-- Content ... -->
+              <h2>Welcome to Fortune's Barrow!</h2>
+              <h2>Instructions for play: </h2>
+              <p>Use the Arrow keys to move your hero</p>
+              <p>Use space to interact with doors and other objects</p>
+              <p>The combat is turn-based and attacking will always attack the closest enemy. Combat will give you XP which will determine your score at the end.</p>
+              <p>Use the action image to cycle through actions, the pass button to skip turn, the run button to run away from combat, and the action button to perform the selected action!</p>
+              <p>Good luck and have fun!</p>
+
+          </section>
+          <footer class="modal-card-foot">
+              <button class="button is-success" id="okButton">Thanks, I got it.</button>
+          </footer>
+      </div>
+  </div>
     <audio
       id="menu-music"
       src="./assets/audio/menu-music.mp3"
@@ -29,9 +53,9 @@
     <h1>Fortune's Barrow</h1>
     <section id="menu-btn-container">
       <button class="menu-button" id="play">Play</button>
-      <button class="menu-button">High Score</button>
+      <button class="menu-button" id="scores">High Scores</button>
     </section>
-    <button id="mute">🔇</button>
+    <button id="mute">🔊</button>
     <script type="text/javascript" src="./assets/js/menu.js"></script>
   </body>
 </html>
