@@ -36,9 +36,10 @@ class EnemyHandler {
 		this.scene.hud.setEnemiesInRoom()
 		if (newHealth <= 0) {
 			object.destroy();
-			this.turnHandler.turns = this.scene.turnHandler.turns.filter((element) => {
+			let tArr = this.scene.turnHandler.turns.filter((element) => {
                 return (element != enemy)
             })
+			this.turnHandler.turns = tArr[0] != undefined ? tArr : []
 			this.objectHandler.removeObject(enemy);
 			if (this.turnHandler.turns.length <= 1){
 				this.scene.turnHandler.currentAction = "none";

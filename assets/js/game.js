@@ -19,21 +19,7 @@ var repoName = "/Team-Grumbly-Project01";
 //   console.log(monsterObjects)
 
 
-//Game Config
-const config = {
-	type: Phaser.AUTO,
-	width: 1280,
-	height: 720,
-	scene: startLevelOne,
-	physics: {
-		default: "arcade",
-		arcade: {
-			debug: true, // Set to true for collision debugging
-		},
-	},
-};
 
-const game = new Phaser.Game(config);
 //Pre-game logic
 $(document).ready(function () {
 	var audio = document.getElementById("menu-music");
@@ -53,6 +39,22 @@ $(document).ready(function () {
 	// Play the audio on the first click of the #begin button
 	beginButton.one("click", function () {
 		playAudio();
+		//Game Config
+		$(beginButton).remove()
+		const config = {
+			type: Phaser.AUTO,
+			width: 1280,
+			height: 720,
+			scene: startLevelOne,
+			pixelArt: true,
+			physics: {
+				default: "arcade",
+				arcade: {
+					debug: true, // Set to true for collision debugging
+				},
+			},
+		};
+		const game = new Phaser.Game(config);
 	});
 
 	muteButton.on("click", function (event) {

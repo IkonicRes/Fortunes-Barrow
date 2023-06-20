@@ -18,8 +18,8 @@ function setDefaultHighScore() {
     //It adds a center aligned list item with class of list-group-item
     var $listItem = $("<li>").addClass();
     //and creates two spans, one for name, one for score. Then it sets both of them to the defaults of "Highest score" and 0 respectively
-    var $scoreName = $("<span>").text("Highest Score ");
-    var $scoreValue = $("<span>").text("0");
+    var $scoreName = $("<h2>").text("Highest Score ");
+    var $scoreValue = $("<h2>").text("0");
     //We create a div with flex-row, justify-content: space-between to keep them at opposite ends of the row
     var $scoreSection = $("<div>").addClass("score");
     //And append the created spans to the div
@@ -61,8 +61,8 @@ function populateScores(scoresPostOrdered){
         //creates a list item with classes of center align and list-group item
         var $listItem = $("<li>").addClass();
         //and creates two spans, one for name, one for score. Then it sets both of them to the current element's content of name and score respectively
-        var $scoreName = $("<span>").text(scoresPreOrdered[index][0]);
-        var $scoreValue = $("<span>").text(scoresPreOrdered[index][1]);
+        var $scoreName = $("<h2>").text(scoresPreOrdered[index][0]);
+        var $scoreValue = $("<h2>").text(scoresPreOrdered[index][1]);
         //We create a div with flex-row, justify-content: space-between to keep them at opposite ends of the row
         var $scoreSection = $("<div>").addClass("score");
         //And append the created spans to the div

@@ -11,7 +11,10 @@ $(document).ready(function () {
     audio.play();
     muteButton.text("🔇"); // Change the muteButton to "mute" state after audio starts playing
   });
-
+  document.getElementById('instructionsModal').classList.add('is-active');
+  document.getElementById('okButton').addEventListener('click', function() {
+    document.getElementById('instructionsModal').classList.remove('is-active');
+  });
   muteButton.on("click", function (event) {
     event.stopPropagation();
 

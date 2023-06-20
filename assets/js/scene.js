@@ -200,6 +200,7 @@ class startLevelOne extends Phaser.Scene {
 		this.bInput = true;
 		this.eXperience = 0;
 		this.bHasKey = false;
+    this.inQuiz = false;
 	}
 
   create() {
@@ -699,19 +700,39 @@ class startLevelOne extends Phaser.Scene {
         }
       }
     } else {
-      this.hud.setEnemiesInRoom();
-      if (!this.animatingIntoRoom) {
-        this.enemyHandler.enemyMove(this.turnHandler.turns[0]);
-        setTimeout(() => {
-          this.scene.resume();
-        }, 2000);
-        this.scene.pause();
+      if (this.objectHandler.getEnemiesInRoom(getRoomIndex("player", this)).length >= 1) {
+        
+        this.hud.setEnemiesInRoom();
+        if (!this.animatingIntoRoom) {
+          this.enemyHandler.enemyMove(this.turnHandler.turns[0]);
+          setTimeout(() => {
+            this.scene.resume();
+          }, 200);
+          this.scene.pause();
+        }
+        
+      } else {
+        if (this.hud.hudVisible) {
+          this.scene.tweens.add({
+            targets: this.hud.hudComponents,
+            duration: 500,    
+            ease: "Power2",
+            onComplete: () => {
+              this.hud.hudComponents.forEach((component) => {
+                component.setVisible(false);
+              });
+            },
+          });
+        }
       }
     }
     this.hud.hudComponents[8].setProgress(
       ProgressBar.valueToPercentage(this.eXperience, 0, 9999)
-    );
-  }
+      );
+      if (this.currentRoom == "room_0_3"){
+        console.log("In Quiz room!")
+      }
+    }
 
   updateText() {
     this.text.setText(

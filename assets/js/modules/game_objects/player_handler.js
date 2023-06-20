@@ -6,8 +6,8 @@ class PlayerHandler {
 	constructor(player, scene){
 		this.scene = scene
 		this.player = player
-		this.health = 100;
-		this.maxHealth = 100;
+		this.health = 150;
+		this.maxHealth = 150;
 		this.movement = {
 			speed: 32,
 			movementDelay: 100
@@ -52,14 +52,18 @@ class PlayerHandler {
 		this.scene.eXperience = (this.scene.eXperience + r1d8())
 		console.log("Experience: ", this.scene.eXperience)
 		if (newHealth <= 0) {
-			this.endGame()
+			this.endGame(false)
 		}
 	}
 
-	endGame() {
+	endGame(bWin) {
 		let tName = "FunkyAnon"
 		console.log(this.scene.eXperience)
-		let tScore = (tName + "%" + this.scene.eXperience)
+		let tScore;
+		if (bWin){
+			tScore = (tName + "%" + (this.scene.eXperience * 2))
+		}
+		else { tScore = (tName + "%" + (this.scene.eXperience)) }
 		let tScores = []
 		//Check if the scores exist in localstorage, and if so, parse the data, append the new score, and restringify the data to be updated in local storage
 		if (this.scoresExist){
@@ -84,7 +88,7 @@ class PlayerHandler {
 	getRange(weapon) {
 		switch (weapon.range) {
 			case "Melee": return 2
-			case "Ranged": return 5
+			case "Ranged": return 10
 			default: return 0
 		}
 	}

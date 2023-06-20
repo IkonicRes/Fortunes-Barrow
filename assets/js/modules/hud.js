@@ -310,6 +310,7 @@ class ProgressBar {
         let spellObject;
         // tWeapon = this.scene.dndApiHandler.WeaponObjects.prototype.find(this.cyclingImageButton.texture.key)
         console.log(this.cyclingImageButton.texture.key);
+        this.scene.eXperience = (this.scene.eXperience + r1d8() + 7)
         switch (this.cyclingImageButton.texture.key) {
             case "sword":
                 console.log("Longsword!")
