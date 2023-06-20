@@ -69,7 +69,7 @@ let scores = localStorage.getItem('scores')
     : [defaultScore];
 
 // Convert scores to an array of arrays and sort them
-let scoresPreOrdered = scores.map(score => score.split("%"));
+scoresPreOrdered = scores.map(score => score.split("%"));
 scoresPreOrdered.forEach(score => score[1] = parseInt(score[1], 10));
 let scoresPostOrdered = bubbleSort(scoresPreOrdered);
 
