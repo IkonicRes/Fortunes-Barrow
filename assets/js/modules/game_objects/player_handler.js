@@ -6,8 +6,8 @@ class PlayerHandler {
 	constructor(player, scene){
 		this.scene = scene
 		this.player = player
-		this.health = 150;
-		this.maxHealth = 150;
+		this.health = 350;
+		this.maxHealth = 350;
 		this.movement = {
 			speed: 32,
 			movementDelay: 100
