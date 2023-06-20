@@ -80,8 +80,6 @@ class GameObject {
 }
 
 
-
-
 export {
     getRoomIndex, GameObject, ObjectHandler
 }

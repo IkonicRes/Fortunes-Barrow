@@ -43,8 +43,11 @@ $(document).ready(function () {
 		$(beginButton).remove()
 		const config = {
 			type: Phaser.AUTO,
-			width: 1280,
-			height: 720,
+			scale: {
+				mode: Phaser.Scale.FIT,
+				width: 1280,
+				height: 720
+			  },
 			scene: startLevelOne,
 			pixelArt: true,
 			physics: {

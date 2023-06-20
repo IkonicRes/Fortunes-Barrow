@@ -1,140 +1,97 @@
 class Riddler {
   constructor() {
     this.wrongAnswers = [];
+    this.selectedAnswer = ""
+    this.bRiddling = false;
+    this.sortedRiddle = undefined;
   }
-async getRiddles() {
-  try {
-    const response = await fetch("https://riddles-api.vercel.app/random");
-    const data = await response.json();
-    // console.log(data); // Log the data to inspect its structure
-    return data; // Assuming the riddles are in the zero index
-  } catch (err) {
-    console.error(err);
+
+  async getRiddles() {
+    try {
+      const response = await fetch("http://riddles-api.vercel.app/random");
+      const data = await response.json();
+      return data; // Assuming the riddles are in the zero index
+    } catch (err) {
+      console.error(err);
+    }
   }
-}
 
-async getAllRiddles() {
-  let riddles = [];
-  for (let i = 0; i < 100; i++) {
-    let tRiddle = await this.getRiddles();
-    riddles.push(tRiddle);
+  async getOneWordRiddle() {
+    var foundOneWordRiddle = false;
+    var riddle;
+    while (!foundOneWordRiddle) {
+      riddle = await this.getRiddles();
+      if (!riddle || !riddle.answer) { continue; }
+      if (riddle.answer.trim().split(" ").length === 1) {
+        foundOneWordRiddle = true;
+      };
+    }
+    return riddle;
   }
-  return riddles;
-}
 
-
-filterOneWordRiddles(data) {
-  const oneWordRiddles = data.filter((riddle) => {
-    // Skip riddles without an answer key
-    if (!riddle || !riddle.answer) {
-      return false;
-    }
-
-    // Remove leading/trailing spaces and check if the answer consists of one word
-    const trimmedAnswer = riddle.answer.trim();
-
-    return trimmedAnswer.split(" ").length === 1;
-  });
-
-  return oneWordRiddles;
-}
-
-;
-
-async fetchQuiz(correctAnswer) {
-  console.log(correctAnswer);
-  try {
-    const response1 = await fetch(
-      `https://api.datamuse.com/words?ml=${correctAnswer}&max=10`
-    );
-    const response2 = await fetch(
-      `https://api.datamuse.com/words?rel_trg=${correctAnswer}&max=10`
-    );
-    if (!response1.ok || !response2.ok) {
-      throw new Error(
-        `HTTP error! status: ${response1.status}, ${response2.status}`
-      );
-    }
-    const data1 = await response1.json();
-    const data2 = await response2.json();
-
-    // Combine results, remove duplicates and the correct answer
-    const combinedData = [...data1, ...data2];
-    console.log(response1, response2);
-    const uniqueData = Array.from(new Set(combinedData.map((a) => a.word)))
-      .map((word) => {
-        return combinedData.find((a) => a.word === word);
-      })
-      .filter((a) => a.word !== correctAnswer);
-    console.log(combinedData);
-    if (uniqueData.length < 3) {
-      console.log("Not enough related words found");
-      return;
-    }
-    const wrongAnswers = [];
-
-    for (let i = 0; i < 3; i++) {
-      // Get the index of the last three elements
-      const lastIndex = uniqueData.length - 1 - i;
-      
-      wrongAnswers.push(uniqueData[lastIndex].word.toUpperCase());
-      // Ensure we don't select the same word twice
-      uniqueData.splice(lastIndex, 1);
-    }
-    
-    correctAnswer = correctAnswer.toUpperCase();
-    wrongAnswers.splice(
-      Math.floor(Math.random() * wrongAnswers.length),
-      0,
-      correctAnswer
-    );
-    console.log(wrongAnswers);
-    
-  return wrongAnswers;
-
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-async start() {
-  let randomRiddle;
-  let wrongAnswers;
-  try {
-    const allRiddles = await this.getAllRiddles();
-    console.log(allRiddles);
-    const filteredRiddles = this.filterOneWordRiddles(allRiddles);
-    console.log(filteredRiddles);
-
-    // Generate a random index to access a random riddle
-    
-    let foundRiddle = false
-    while(!foundRiddle){
-      var randomIndex = Math.floor(Math.random() * filteredRiddles.length);
-      randomRiddle = filteredRiddles[randomIndex];
-      if (!/\d/.test(randomRiddle.answer)){
-        foundRiddle = true
+  async fetchQuiz(correctAnswer) {
+    try {
+      const response1 = await fetch(`http://api.datamuse.com/words?ml=${correctAnswer}&max=10`);
+      const response2 = await fetch(`http://api.datamuse.com/words?rel_trg=${correctAnswer}&max=10`);
+      if (!response1.ok || !response2.ok) {
+        throw new Error(`HTTP error! status: ${response1.status}, ${response2.status}`);
       }
-    }
-    // Generate the random riddle
-    
-    console.log(randomRiddle);
+      const data1 = await response1.json();
+      const data2 = await response2.json();
 
-    // Fetch the quiz with the correct answer
-    wrongAnswers = await this.fetchQuiz(
-      randomRiddle.answer
-        .split("")
-        .filter((char) => /^[a-zA-Z]*$/.test(char))
-        .join("")
-    );
-  } catch (err) {
-    console.error(err);
+      // Combine results, remove duplicates and the correct answer
+      const combinedData = data1.concat(data2)
+      const uniqueData = combinedData.filter((item, pos) => combinedData.indexOf(item) === pos)
+      if (uniqueData.length < 3) {
+        console.log("Not enough related words found");
+        return await this.fetchQuiz(this.getOneWordRiddle());
+      }
+      const wrongAnswers = [];
+
+      for (let i = 0; i < 3; i++) {
+        // Get the index of the last three elements
+        const lastIndex = uniqueData.length - 1 - i;
+        wrongAnswers.push(uniqueData[lastIndex].word.toUpperCase());
+        // Ensure we don't select the same word twice
+        uniqueData.splice(lastIndex, 1);
+      }
+      
+      correctAnswer = correctAnswer.toUpperCase();
+      wrongAnswers.splice(
+        Math.floor(Math.random() * wrongAnswers.length),
+        0,
+        correctAnswer
+      );
+      
+      return wrongAnswers;
+
+    } catch (err) {
+      console.error(err);
+    }
   }
 
-  return {
-    riddle: randomRiddle,
-    wrongAnswers: wrongAnswers,
-  };
-}
+  async start() {
+    let riddle;
+    let wrongAnswers;
+    try {
+      riddle = await this.getOneWordRiddle();
+      console.log(riddle);
+
+      // Fetch the quiz with the correct answer
+      wrongAnswers = await this.fetchQuiz(
+        riddle.answer
+          .split("")
+          .filter((char) => /^[a-zA-Z]*$/.test(char))
+          .join("")
+      );
+    } catch (err) {
+      console.error(err);
+    }
+
+    return {
+      riddle: riddle,
+      wrongAnswers: wrongAnswers,
+    };
+  }
 }
 export {Riddler};

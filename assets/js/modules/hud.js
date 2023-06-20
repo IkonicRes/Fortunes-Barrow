@@ -1,29 +1,11 @@
 import { r1d8 } from "./helper.js";
 
 class ProgressBar {
-    constructor(
-      posX,
-      posY,
-      width,
-      height,
-      scene,
-      borderX = 0,
-      borderY = 0,
-      color = 0xFF0000,
-      bgColor = 0x111111
-    ) {
+    constructor(posX, posY, width, height, scene, borderX = 0, borderY = 0, color = 0xFF0000, bgColor = 0x111111) {
       this.scene = scene;
-      this.pos = {
-        x: posX,
-        y: posY,
-      };
-      this.size = {
-        width: width,
-        height: height,
-      };
-      this.border = {
-        x: borderX, y: borderY
-      }
+      this.pos = { x: posX, y: posY };
+      this.size = { width: width, height: height };
+      this.border = { x: borderX, y: borderY }
       this.targetProgress = 0;
       this.currentProgress = 0;
       this.color = color;
@@ -32,11 +14,16 @@ class ProgressBar {
       this.progress = this.scene.add.graphics();
       this.progress.setInteractive();
       this.updateProgressBar();
-      this.scene.input.on('gameobjectdown', (pointer, gameObject) => {
-        
-      })
       this.setProgress(100);
-    }
+      // USE THIS TO ADD CLICKING ON A HEALTH BAR TO TARGET
+      // this.scene.input.on('gameobjectdown', (pointer, gameObject) => {
+        // })
+      }
+      
+    static valueToPercentage(value, min, max) { return ((value - min) * 100) / (max - min); }
+
+    setDepth(depth) { this.progress.setDepth(depth); this.bg.setDepth(depth - 1) }
+    setVisible(bool) { this.progress.setVisible(bool); this.bg.setVisible(bool); }
 
     updateProgressBar() {
         this.bg.setScrollFactor(0);
@@ -50,17 +37,9 @@ class ProgressBar {
         this.progress.setScrollFactor(0);
         this.progress.fillStyle(this.color, 0.7);
         this.progress.fillRect(
-          this.pos.x,
-          this.pos.y,
-          0,
-          this.size.height
+          this.pos.x, this.pos.y,
+          0, this.size.height
         );
-    }
-
-
-  
-    static valueToPercentage(value, min, max) {
-      return ((value - min) * 100) / (max - min);
     }
   
     setProgress(progress) {
@@ -76,33 +55,14 @@ class ProgressBar {
       );
     }
     
-    setDepth(depth) {
-      this.progress.setDepth(depth);
-      this.bg.setDepth(depth - 1)
-    }
-
-    setVisible(bool) {
-      this.progress.setVisible(bool);
-      this.bg.setVisible(bool);
-    }
   }
   
   class Component {
-    constructor(object, defaultHeight) {
+    constructor(object) {
       this.component = object;
       this.component.setDepth(9999)
-      this.origin = {};
-      this.defaultHeight = defaultHeight;
     }
 
-    reset() {
-        this.height = this.defaultHeight
-    }
-
-    setComponentOrigin() {
-      this.origin = { x: this.component.x, y: this.component.y };
-    }
-  
     setVisible(bool) {
       this.component.setVisible(bool);
     }
@@ -111,24 +71,8 @@ class ProgressBar {
       this.component.setProgress(progress)
     }
 
-    setInteractive() {
-      this.component.setInteractive();
-    }
-  
-    on(event, callback) {
-      this.component.on(event, callback);
-    }
-  
     setDepth(value) {
       this.component.setDepth(value);
-    }
-  
-    setDisplaySize(width, height) {
-      this.component.setDisplaySize(width, height);
-    }
-  
-    setScrollFactor(value) {
-      this.component.setScrollFactor(value);
     }
   }
   
@@ -147,6 +91,7 @@ class ProgressBar {
       this.enemiesInRoom = []
       this.choiceButtons = [];
       this.texts = []
+      this.riddleVisible = false;
     }
   
     setEnemiesInRoom() {
@@ -169,16 +114,16 @@ class ProgressBar {
       let progressBarDimensions = { width: 200, height: 20 };
       let sectionWidth = scale.width;
   
-      this.hud = new Component(this.scene.add.graphics());
-      this.hud.component.fillStyle(0x000000, 0.8);
-      this.hud.component.fillRect(
+      this.hud = this.scene.add.graphics();
+      this.hud.fillStyle(0x000000, 0.8);
+      this.hud.fillRect(
         0,
         (scale.height * 2) / 3,
         scale.width,
         scale.height / 3
       );
-      this.hud.component.setScrollFactor(0);
-      this.hud.setComponentOrigin();
+      this.hud.setScrollFactor(0);
+      this.hud = new Component(this.hud);
   
       let barNames = ["progressBar1", "progressBar2", "progressBar3", "progressBar4", "progressBar5"];
   
@@ -229,8 +174,8 @@ class ProgressBar {
       this.images = imageNames.map((name, i) => {
         let image = this.scene.add
           .image(
-            hudPosition.x + sectionWidth / 6,
-            hudPosition.y + sectionHeight * i + sectionHeight / 1.2,
+            hudPosition.x + sectionWidth / 6 + 5,
+            hudPosition.y + sectionHeight * i + progressBarDimensions.height / 0.4,
             name
           )
           .setDepth(9999)
@@ -241,21 +186,22 @@ class ProgressBar {
       
   
       this.textArea = this.scene.add
-    .text(
-        hudPosition.x + sectionWidth / 3,
-        hudPosition.y + sectionHeight * 2,
-        "This is sample Dialogue text",
-        { font: "16px Arial", fill: "#ffffff", wordWrap: { width: 300 } },
-        
-    )
-    .setOrigin(0.5) // Set the origin directly using setOrigin()
-    .setScrollFactor(0)
-    .setDepth(10000);
+        .text(
+            hudPosition.x + sectionWidth / 3,
+            hudPosition.y + sectionHeight * 2,
+            "This is sample Dialogue text",
+            { font: "16px Arial", fill: "#ffffff", wordWrap: { width: 300 } },
+            
+        )
+        .setOrigin(0.5) // Set the origin directly using setOrigin()
+        .setScrollFactor(0)
+        .setDepth(10000);
+      this.textArea = new Component(this.textArea)
 
       let buttonImages = [
-        "actionButtonImage",
-        "passButtonImage",
-        "runButtonImage",
+        "action",
+        "pass",
+        "run",
       ];
       let buttonSpacing = sectionHeight / 3;
       let buttonHeight = buttonSpacing * 2.5;
@@ -268,7 +214,7 @@ class ProgressBar {
             img
           )
           .setInteractive()
-        .setDepth(9999)
+          .setDepth(9999)
           .setOrigin(0.5) // Set the origin directly using setOrigin()
           .setDisplaySize(sectionWidth / 6, buttonHeight *2)
           .setScrollFactor(0)
@@ -305,44 +251,46 @@ class ProgressBar {
     })
     this.choiceButtons = [];
     this.answers = ["Answer 1", "Answer 2", "Answer 3", "Answer 4"];
-    let choiceButtonSpacing = hudPosition.sectionHeight / 3;
+    let choiceButtonSpacing = hudPosition.sectionHeight / 8;
     let choiceButtonHeight = choiceButtonSpacing * 2.5;
     let camera = this.scene.cameras.main
     for(let i = 0; i < 4; i++) {
       let choiceButton = this.scene.add
         .image(
-          camera.centerX,
-          camera.centerY + choiceButtonSpacing * (i - 1.5),
+          270 + (250 * i),
+          100,
           'choiceButton'
         )
         .setInteractive()
         .setDepth(9999)
         .setOrigin(0.5)
-        .setDisplaySize(hudPosition.sectionWidth / 6, buttonHeight * 2)
+        .setScale(0.8, 0.8)
         .setScrollFactor(0)
+        .setVisible(0);
       this.choiceButtons.push(new Component(choiceButton));
-      choiceButton.visible = false;
     
-      let text = this.scene.add.text(camera.centerX, camera.centerY + choiceButtonSpacing * (i - 1.5), '', { color: '#000', fontSize: '16px' });
-      text.setOrigin(0.5);
-      text.setScrollFactor(0);
-      text.visible = false;
-      this.texts.push(text);
+      let text = this.scene.add.text(
+        270 + (250 * i), 100,
+         '', { color: '#000', fontSize: '16px' })
+        .setOrigin(0.5)
+        .setScrollFactor(0)
+        .setVisible(0);
+      this.texts.push(new Component(text));
     
       choiceButton.on('pointerdown', () => {
-        console.log(`Button ${i} pressed, answer is ${this.answers[i]}`);
+        this.scene.riddler.selectedAnswer = text.text;
       });
     }
     
     this.showButtons();
-    this.buttons[0].on("pointerdown", () => {
-        console.log("Wobjects: ", this.scene.dndApiHandler)
+    this.buttons[0].component.on("pointerdown", () => {
+      if (this.scene.turnHandler.turns[0] == "player" && this.scene.turnHandler.currentTurn == "player") {
+        
         let weaponKey;
         let weaponObject;
         let spellKey;
         let spellObject;
         // tWeapon = this.scene.dndApiHandler.WeaponObjects.prototype.find(this.cyclingImageButton.texture.key)
-        console.log(this.cyclingImageButton.texture.key);
         this.scene.eXperience = (this.scene.eXperience + r1d8() + 7)
         switch (this.cyclingImageButton.texture.key) {
             case "sword":
@@ -381,7 +329,6 @@ class ProgressBar {
                 break
             case "healing":
                 console.log("heal!")
-                console.log(this.scene.dndApiHandler.spellObjects)
                 spellKey = "Heal";  // for example
                 spellObject = this.scene.dndApiHandler.spellObjects.find(spell => spell.name === spellKey);
                 if (spellObject) {
@@ -409,10 +356,12 @@ class ProgressBar {
                 break;
         }
         this.scene.turnHandler.consumeTurn()
+        
+      }
     });
     
-        this.buttons[1].on("pointerdown", () => { this.scene.turnHandler.currentAction = "pass"; this.scene.turnHandler.consumeTurn(); });
-        this.buttons[2].on("pointerdown", () => { this.scene.turnHandler.currentAction = "run"; });
+        this.buttons[1].component.on("pointerdown", () => { this.scene.turnHandler.currentAction = "pass"; this.scene.turnHandler.consumeTurn(); });
+        this.buttons[2].component.on("pointerdown", () => { this.scene.turnHandler.currentAction = "run"; });
         
       this.hudComponents.push(
         this.hud,
@@ -423,7 +372,7 @@ class ProgressBar {
         this.textArea
       );
       this.scene.tweens.add({
-        targets: this.hudComponents.map((component) => {console.log("componentcomponent: ", component); return component}),
+        targets: this.hudComponents.map((component) => { return component }),
         duration: 0,    
         ease: "Power2",
         onComplete: () => {
@@ -440,7 +389,7 @@ class ProgressBar {
       }
     }
     getTextArea() {
-        return this.textArea;
+        return this.textArea.component;
     }
 
     showButtons() {
@@ -448,19 +397,24 @@ class ProgressBar {
         setTimeout (this.showButtons(), 1000)
         return;  // Not ready yet, so we just exit the function
       }
-      for(let i = 0; i < 4; i++) {
-        this.texts[i].setText(this.answers[i]);
-        this.texts[i].visible = true;
-        this.choiceButtons[i].visible = true;
+      if (this.scene.riddler.bRiddling) {
+        for(let i = 0; i < this.texts.length; i++) {
+          this.texts[i].component.setText(this.scene.riddler.sortedRiddle.wrongAnswers[i])
+          this.texts[i].component.visible = true;
+          this.choiceButtons[i].component.visible = true;
+        }
+        this.riddleVisible = true;
       }
     }
     
     hideButtons() {
       for(let i = 0; i < 4; i++) {
-        this.texts[i].visible = false;
-        this.choiceButtons[i].visible = false;
+        this.texts[i].component.visible = false;
+        this.choiceButtons[i].component.visible = false;
       }
-    
+      this.scene.riddler.bRiddling = false;
+      this.riddleVisible = false;
+      
     }
 
     toggleHud() {

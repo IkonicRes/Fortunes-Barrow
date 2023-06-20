@@ -1,0 +1,97 @@
+{
+    "anims": [
+        {
+          "key": "left",
+          "type": "frame",
+          "frames": [
+            { "key": "playerAtlas", "frame": 165 },
+            { "key": "playerAtlas", "frame": 166 },
+            { "key": "playerAtlas", "frame": 167 },
+            { "key": "playerAtlas", "frame": 168 },
+            { "key": "playerAtlas", "frame": 169 },
+            { "key": "playerAtlas", "frame": 170 },
+            { "key": "playerAtlas", "frame": 171 },
+            { "key": "playerAtlas", "frame": 172 }
+          ],
+          "frameRate": 10
+        },
+        {
+          "key": "right",
+          "type": "frame",
+          "frames": [
+            { "key": "playerAtlas", "frame": 229 },
+            { "key": "playerAtlas", "frame": 230 },
+            { "key": "playerAtlas", "frame": 231 },
+            { "key": "playerAtlas", "frame": 232 },
+            { "key": "playerAtlas", "frame": 233 },
+            { "key": "playerAtlas", "frame": 234 },
+            { "key": "playerAtlas", "frame": 235 },
+            { "key": "playerAtlas", "frame": 236 }
+          ],
+          "frameRate": 10
+        },
+        {
+          "key": "up",
+          "type": "frame",
+          "frames": [
+            { "key": "playerAtlas", "frame": 133 },
+            { "key": "playerAtlas", "frame": 134 },
+            { "key": "playerAtlas", "frame": 135 },
+            { "key": "playerAtlas", "frame": 136 },
+            { "key": "playerAtlas", "frame": 137 },
+            { "key": "playerAtlas", "frame": 138 },
+            { "key": "playerAtlas", "frame": 139 },
+            { "key": "playerAtlas", "frame": 140 }
+          ],
+          "frameRate": 10
+        },
+        {
+          "key": "down",
+          "type": "frame",
+          "frames": [
+            { "key": "playerAtlas", "frame": 197 },
+            { "key": "playerAtlas", "frame": 198 },
+            { "key": "playerAtlas", "frame": 199 },
+            { "key": "playerAtlas", "frame": 200 },
+            { "key": "playerAtlas", "frame": 201 },
+            { "key": "playerAtlas", "frame": 202 },
+            { "key": "playerAtlas", "frame": 203 },
+            { "key": "playerAtlas", "frame": 204 }
+          ],
+          "frameRate": 10
+        },
+        {
+          "key": "stop-left",
+          "type": "frame",
+          "frames": [
+            { "key": "playerAtlas", "frame": 172 }
+          ],
+          "frameRate": 10
+        },
+        {
+          "key": "stop-right",
+          "type": "frame",
+          "frames": [
+            { "key": "playerAtlas", "frame": 236 }
+          ],
+          "frameRate": 10
+        },
+        {
+          "key": "stop-up",
+          "type": "frame",
+          "frames": [
+            { "key": "playerAtlas", "frame": 140 }
+          ],
+          "frameRate": 10
+        },
+        {
+          "key": "stop-down",
+          "type": "frame",
+          "frames": [
+            { "key": "playerAtlas", "frame": 204 }
+          ],
+          "frameRate": 10
+        }
+    ],
+    "globalTimeScale": 1
+}

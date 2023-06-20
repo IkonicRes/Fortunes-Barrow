@@ -66,16 +66,9 @@ class EnemyHandler {
 	enemyMove(enemyName) {
 		console.log("Enemy Move called for", enemyName);
 		this.enemy = this.objectHandler.getObject(enemyName); // Assign this.enemy
-		const monsterName = enemyName.replace(/\d+$/, ""); // Remove numbers from enemyName
 		this.checkEnemyForData(enemyName)
-		const monsterObject = {
-			health: this.enemy.getData("health"),
-			maxHealth: this.enemy.getData("maxHealth"),
-			range: this.enemy.getData("range"),
-			damageRoll: this.enemy.getData("damageRoll"),
-		}
 		
-		this.scene.updateDialogueText("Monster Object for", enemyName, "is", monsterObject);
+		this.scene.updateDialogueText(`${enemyName} is taking their turn.`);
 	  
 		const player = this.objectHandler.getObject("player");
 		const deltaX = player.x - this.enemy.x;
@@ -109,10 +102,10 @@ class EnemyHandler {
 			}
 		  }
 		  this.enemy.shouldAttack = false; // Reset shouldAttack for next turn
+		  
 		}
 	  
 		// If it's the enemy's turn and they should attack, call the attack method
-		console.log(this.turnHandler.currentTurn)
 		if (this.scene.turnHandler.currentTurn === enemyName && this.enemy.shouldAttack) {
 		  this.attack(enemyName);
 		}
@@ -145,26 +138,24 @@ class EnemyHandler {
 		// Check if the enemy is in attack range
 		if (distanceX <= maxDistance && distanceY <= maxDistance) {
 		  // Attack logic
-		  const damageRoll = () => {
-			const [dice, modifier] = this.enemy.getData("damageRoll").split("+");
-			const [numDice, diceType] = dice.split("d");
+			const damageRoll = () => {
+				const [dice, modifier] = this.enemy.getData("damageRoll").split("+");
+				const [numDice, diceType] = dice.split("d");
 
-			let damage = 0;
+				let damage = 0;
 
-			for (let i = 0; i < numDice; i++) {
-				damage += eval(`r1d${diceType}()`); // Evaluate the corresponding dice function
-			}
+				for (let i = 0; i < numDice; i++) {
+					damage += eval(`r1d${diceType}()`); // Evaluate the corresponding dice function
+				}
 
-			if (modifier) {
-				damage += parseInt(modifier);
-			}
-			this.scene.playerHandler.setHealth(this.scene.playerHandler.health - damage)
-				
-			this.scene.updateDialogueText(`${enemyName} attacks the player for ${damage} damage.`);
-			// Update the player's health or apply the damage to the player here
-			// For example: this.objectHandler.getObject("player").health -= damage;
-		};
-		damageRoll();
+				if (modifier) {
+					damage += parseInt(modifier);
+				}
+				// Update the player's health or apply the damage to the player here
+				this.scene.playerHandler.setHealth(this.scene.playerHandler.health - damage)
+				this.scene.updateDialogueText(`${enemyName} attacks the player for ${damage} damage.`);
+			};
+			damageRoll();
 		} else {
 		  this.scene.updateDialogueText(`${enemyName} is not in attack range.`);
 		}
