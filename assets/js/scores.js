@@ -80,8 +80,11 @@ if (scoresExist){
     var scores = JSON.parse(localStorage.getItem("scores"))
     //And loop over them all...
     for (var index = 0; index < scores.length; index++) {
-        //Splitting each score by the inserted "%" divider and pushing the temporarily saved score to the pre-ordered array of scores.
+        //Splitting each score by the inserted "%" divider
         var tScore = scores[index].split("%");
+        // Convert the score part to a number
+        tScore[1] = parseInt(tScore[1], 10);
+        // push the temporarily saved score to the pre-ordered array of scores.
         scoresPreOrdered.push(tScore);
     }
 }
