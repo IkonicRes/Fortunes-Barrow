@@ -601,6 +601,7 @@ class startLevelOne extends Phaser.Scene {
 
   checkInputs() {
     // LEFT
+    if (this.cursors.q.isdown)
     if (this.cursors.left.isDown && !this.playerHandler.leftTimer) {
       if (this.bInput) {
         this.playerHandler.moveLeft.bind(this.playerHandler)();
