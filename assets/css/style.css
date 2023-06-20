@@ -1,6 +1,6 @@
 body {
-    height: 100%;
-    width: 100%;
+    height: 100vh;
+    width: 100vw;
     background-color: var(--menu-bkgcolor);
     color: var(--main-text-color);
     font-family: 'MedievalSharp';
@@ -9,12 +9,89 @@ body {
     align-items: center;
 }
 
+.modal-card-body {
+    background-color: rgb(41, 41, 41);
+    text-align: center;
+    padding: 10vw;
+    font-size: 1.2rem;
+}
+#okButton{
+background-color: rgb(41, 41, 41);
+color: var(--main-text-color)
+}
+.modal-card-title{
+    color: var(--main-text-color)
+}
+
+.modal-card-head{
+    background-color: rgb(24, 24, 24);
+    text-align: center;
+    font-size: 1.2rem;
+    color: var(--main-text-color)
+}
+.modal-card-foot{
+    background-color: rgb(24, 24, 24);
+    text-align: center;
+    font-size: 1.2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.score {
+    display: flex;
+    justify-content: space-between;
+}
+canvas {
+    margin-top: 12vh;
+}
+#callsign {
+    color: var(--main-text-color)
+}
+.list-item {
+    background-color: #1c1d1efa; /* replace with desired color */
+    padding: 20px; /* adjust as needed */
+}
+
+#score-list {
+    border: 1px solid #1c1d1efa;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+#score-list li {
+    background-color: #1c1d1efa;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.score span:first-child {
+    font-weight: bold;
+    color: #333;
+}
+
+.score span:last-child {
+    font-size: 18px;
+    color: #007bff;
+}
 
 h1 {
     margin-top: var(--h1-margintop);
     font-size: var(--h1-textsize);
     text-align: center;
     text-shadow: var(--base-textshadow);
+}
+
+#selection {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center;
+    width: var(--menubtns-containerwidth);
+    margin-top: var(--menubtns-container-margintop);
 }
 
 #menu-btn-container {
@@ -35,6 +112,7 @@ h1 {
     border-radius: var(--menubtn-border-radius);
     margin-top: var(--menubtn-margintop);
     height: var(--menubtn-height);
+    min-width: 7vw;
     
 }
 
