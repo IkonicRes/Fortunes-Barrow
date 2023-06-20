@@ -9,13 +9,13 @@ $(document).ready(function () {
   var muteButton = $("#mute");
 
   audio.muted = true; // Initially set the audio to muted
-  muteButton.text("🔇"); // Set muteButton to "unmute" state
+  muteButton.text("🔊"); // Set muteButton to "unmute" state
 
   // Play the audio on the first user interaction with the page
   $(document).one("click", function () {
     audio.muted = false;
     audio.play();
-    muteButton.text("🔊"); // Change the muteButton to "mute" state after audio starts playing
+    muteButton.text("🔇"); // Change the muteButton to "mute" state after audio starts playing
   });
 
   muteButton.on("click", function (event) {
@@ -23,10 +23,10 @@ $(document).ready(function () {
 
     if (audio.paused) {
       audio.play();
-      muteButton.text("🔊");
+      muteButton.text("🔇");
     } else {
       audio.pause();
-      muteButton.text("🔇");
+      muteButton.text("🔊");
     }
   });
 
