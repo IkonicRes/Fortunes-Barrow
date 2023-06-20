@@ -60,16 +60,33 @@ function bubbleSort(inputArr) {
     }
     return inputArr;
 }
+// Default high score
+const defaultScore = ["Highest Score", 0];
+
+// Load the scores from localStorage, if available
+let scores = localStorage.getItem('scores') 
+    ? JSON.parse(localStorage.getItem('scores')) 
+    : [defaultScore];
+
+// Convert scores to an array of arrays and sort them
+let scoresPreOrdered = scores.map(score => score.split("%"));
+scoresPreOrdered.forEach(score => score[1] = parseInt(score[1], 10));
+let scoresPostOrdered = bubbleSort(scoresPreOrdered);
+
+// When the page loads, populate the scores and add button listeners
+populateScores(scoresPostOrdered);
+addClearButtonListener();
+addResetButtonListener();
 
 //This function populates our sorted high scores from the localstorage
 function populateScores(scoresPostOrdered){
     //It loops over each ordered array, which should contain an index 0 of the user's name and an index 1 of the user's score
-    for(index = 0; index < scoresPostOrdered.length; index++){
+    for(let index = 0; index < scoresPostOrdered.length; index++){
         //creates a list item with classes of center align and list-group item
         var $listItem = $("<li>").addClass();
         //and creates two spans, one for name, one for score. Then it sets both of them to the current element's content of name and score respectively
-        var $scoreName = $("<h2>").text(scoresPreOrdered[index][0]);
-        var $scoreValue = $("<h2>").text(scoresPreOrdered[index][1]);
+        var $scoreName = $("<h2>").text(scoresPostOrdered[index][0]);
+        var $scoreValue = $("<h2>").text(scoresPostOrdered[index][1]);
         //We create a div with flex-row, justify-content: space-between to keep them at opposite ends of the row
         var $scoreSection = $("<div>").addClass("score");
         //And append the created spans to the div
@@ -83,8 +100,6 @@ function populateScores(scoresPostOrdered){
 
 //When the page loads, check if the scores exist
 if (scoresExist){
-    //And if so, grab and parse existing scores and save them to var scores
-    var scores = JSON.parse(localStorage.getItem("scores"))
     //And loop over them all...
     for (var index = 0; index < scores.length; index++) {
         //Splitting each score by the inserted "%" divider
