@@ -13,7 +13,7 @@ We have created a dungeon crawler style game using HTML, CSS, and JavaScript. Th
 ## Usage
 
 Here's a link to the deployed page, go check around:   
-[My Portfolio](https://ikonicres.github.io/Fortunes-Barrow/)<center>
+[Fortune's Barrow](https://ikonicres.github.io/Fortunes-Barrow/)<center>
 
 
 ## Credits
